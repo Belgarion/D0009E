@@ -187,6 +187,35 @@ class Bot:
 			elif action.upper() == "366": # end names
 				self.names_cur_channel = None
 
+			elif action.upper() == "JOIN":
+				nick = source.split("!")[0]
+				if not nick in self.channels[target.upper()].names:
+					self.channels[target.upper()].names.append(nick)
+
+			elif action.upper() == "PART":
+				nick = source.split("!")[0]
+				self.channels[target.upper()].names.remove(nick)
+
+			elif action.upper() == "QUIT":
+				nick = source.split("!")[0]
+
+				for i in self.channels.values():
+					if nick in i.names:
+						i.names.remove(nick)
+
+			elif action.upper() == "KICK":
+				nick = message.split()[0]
+				self.channels[target.upper()].names.remove(nick)
+
+			elif action.upper() == "NICK":
+				nick = source.split("!")[0]
+				newnick = target
+
+				for i in self.channels.values():
+					if nick in i.names:
+						i.names.remove(nick)
+						i.names.append(newnick)
+
 			elif action.upper() == "PRIVMSG":
 				if target.upper() == self.nick.upper():
 					if message.upper() == "\001VERSION\001":
