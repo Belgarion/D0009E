@@ -14,6 +14,7 @@ import ConfigParser
 class ChannelStats:
 	def __init__(self):
 		self.lastMessage = time.time()
+		self.names = []
 
 class Bot:
 	def __init__(self):
@@ -22,6 +23,7 @@ class Bot:
 		self.channels = {}
 		for chan in self.chans:
 			self.channels[chan] = ChannelStats()
+		self.names_cur_channel = None
 
 		self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 		self.msg_re = re.compile('^(:([^ ]+))? *([^ ]+) +:?([^ ]*) *:?(.*)$')
@@ -37,8 +39,10 @@ class Bot:
 		self.commands = {}
 		self.plugins = []
 		try:
+			reload(__import__('plugins'))
 			for i in __import__('plugins').__all__:
 				plugin = __import__('plugins.%s' % i, fromlist=[None])
+				reload(plugin)
 				if "mainclass" in dir(plugin):
 					print "Loading", i
 					self.plugins.append(plugin.mainclass(self))
@@ -66,8 +70,9 @@ class Bot:
 		admins = " ".join([":".join(i) for i in self.users])
 		self.config.set('users', 'admins', admins)
 
-		with open("d0009e.cfg", "w") as f:
-			self.config.write(f)
+		f = open("d0009e.cfg", "w")
+		self.config.write(f)
+		f.close()
 
 	def run(self):
 		self.running = True
@@ -163,6 +168,25 @@ class Bot:
 				# Reconnect
 				time.sleep(30)
 				self.connect()
+			elif action.upper() == "353": # begin names
+				m = re.search('. ([^ ]+) :?(.+)$', message)
+
+				if not m:
+					continue
+
+				channel, names = m.group(1, 2)
+				if self.names_cur_channel != channel:
+					self.channels[channel.upper()].names = []
+					self.names_cur_channel = channel
+
+				# Remove prefixes
+				names = re.sub(r'[^0-9a-zA-Z\\^\[\]^_`{|} -]', '',  names)
+
+				self.channels[channel.upper()].names.extend(names.split())
+
+			elif action.upper() == "366": # end names
+				self.names_cur_channel = None
+
 			elif action.upper() == "PRIVMSG":
 				if target.upper() == self.nick.upper():
 					if message.upper() == "\001VERSION\001":
