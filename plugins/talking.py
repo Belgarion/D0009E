@@ -7,6 +7,7 @@ from pluginbase import PluginBase
 
 import random
 import shutil
+import time
 
 class Talking(PluginBase):
 	def __init__(self, bot):
@@ -99,6 +100,8 @@ class Talking(PluginBase):
 	def  loadSentences(self, filename):
 		f = open(filename, 'r')
 		for line in f.readlines():
+			line = line.replace("\r", "")
+			line = line.replace("\n", "")
 			self.sentences.append(line)
 		f.close()
 
@@ -143,5 +146,13 @@ class Talking(PluginBase):
 	def addSentence(self, bot, channel, params):
 		self.sentences.append(" ".join(params))
 		self.saveSentences("sentences.txt")
+
+	def on_tick(self, bot):
+		hour = time.localtime().tm_hour
+		if time.time() - bot.nextTalk > 0 and hour > 6 and hour <= 23:
+			bot.nextTalk = time.time()  + random.randint(1800, 7200)
+			chan = random.choice(bot.channels.keys())
+			bot.sendMessage("PRIVMSG", chan, self.getSentence(bot, chan))
+
 
 mainclass = Talking

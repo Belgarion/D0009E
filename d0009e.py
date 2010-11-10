@@ -32,6 +32,7 @@ class Bot:
 		self.commands = {}
 		self.queryCommands = {}
 		self.authorized_users = []
+		self.nextTalk = time.time() + 15
 
 		self.loadPlugins()
 
