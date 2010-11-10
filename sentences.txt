@@ -1,0 +1,37 @@
+Du Ã¤r %%ADJEKTIV5%% Ã¤n %%NAMN%%
+
+Ska %%PRONOMEN%% %%VERB%% en %%SUBSTANTIV%%?
+
+Hej %%NICK%% vill du med pÃ¥ lite %%SUBSTANTIV%%?
+
+Jo fÃ¶rresten %%NICK%%, visste du att i %%LAND%% sÃ¥ %%VERB4%% de %%SUBSTANTIV5%%
+
+har ni hÃ¶rt att det gÃ¥r ett rykte om att %%NICK%% har %%VERB3%%
+
+%%NICK%% det gÃ¥r ett rykte att du %%VERB%% %%SUBSTANTIV%% stÃ¤mmer det?
+
+%%NICK%%: du Ã¤r allt bra %%ADJEKTIV%% du :)
+
+%%NICK%%: du fÃ¥r sluta vara sÃ¥ jÃ¤vla %%ADJEKTIV%%
+
+%%NICK%%: mja, lite %%ADJEKTIV%% kan du ju vara...
+
+AssÃ¥ menar du inte %%SUBSTANTIV%% nu?
+
+Aah, du menar typ som %%SUBSTANTIV%%?
+
+Fan jag hatar %%SUBSTANTIV%%
+
+AssÃ¥ jag orkar inte med mer %%SUBSTANTIV%%
+
+Jag har fÃ¥tt en massa spam om %%SUBSTANTIV5%%, ska jag ta illa upp?
+
+Ã„h, nu fÃ¥r det vara nog. Nu ska jag gÃ¥ och %%VERB%%
+
+/away %%SUBSTANTIV%%
+
+AssÃ¥ Ã¤r inte det typ%%DEFINITION1%%
+
+Är det någon här som vet vart man enklast kan få tag på en %%SUBSTANTIV%%, jag skulle behöva en till att %%verb%%, annars blir det så svårt sen när man ska %%verb%% %%substantiv%%.
+Är det någon här som vet vart man enklast kan få tag på en %%SUBSTANTIV%%, jag skulle behöva en till att %%VERB%%, annars blir det så svårt sen när man ska %%VERB%% %%SUBSTANTIV%%.
+Är det någon här som vet vart man enklast kan få tag på en %%SUBSTANTIV%%, jag skulle behöva en till att %%VERB%%, annars blir det så svårt sen när man ska %%VERB%% %%SUBSTANTIV%%.

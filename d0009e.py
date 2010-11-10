@@ -29,7 +29,8 @@ class Bot:
 		self.msg_re = re.compile('^(:([^ ]+))? *([^ ]+) +:?([^ ]*) *:?(.*)$')
 
 		self.joined = False
-		self.commands = []
+		self.commands = {}
+		self.queryCommands = {}
 		self.authorized_users = []
 
 		self.loadPlugins()
@@ -37,6 +38,7 @@ class Bot:
 	def loadPlugins(self):
 		self.help = {}
 		self.commands = {}
+		self.queryCommands = {}
 		self.plugins = []
 		try:
 			reload(__import__('plugins'))
@@ -122,6 +124,9 @@ class Bot:
 
 	def registerCommand(self, command, func):
 		self.commands[command] = func
+
+	def registerQueryCommand(self, command, func):
+		self.queryCommands[command] = func
 
 	def addHelp(self, command, helpMessage):
 		self.help[command] = helpMessage
@@ -238,6 +243,16 @@ class Bot:
 						else:
 							self.sendMessage("NOTICE", nick,
 									"Wrong username or password")
+					else:
+						nick, userhost = source.split("!")
+						try:
+							if command in self.queryCommands:
+								thread.start_new_thread(self.queryCommands[command],
+									(self, nick, args))
+						except Exception, e:
+							traceback.print_exc()
+							self.sendMessage("PRIVMSG", target, "Error!!")
+
 				elif target.upper() in self.channels:
 					chanstats = self.channels[target.upper()]
 					chanstats.lastMessage = time.time()
