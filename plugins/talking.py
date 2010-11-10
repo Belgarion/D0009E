@@ -13,7 +13,7 @@ class Talking(PluginBase):
 		bot.registerCommand("!talk", self.talk)
 		bot.registerQueryCommand("!listsentences", self.listSentences)
 		bot.registerQueryCommand("!addsentence", self.addSentence)
-
+		bot.registerQueryCommand("!delsentence", self.delSentence)
 
 		self.substantiv = []
 		self.pronomen = [["jag"], ["du"], ["vi"], ["ni"], ["man kanske"]]
@@ -137,11 +137,18 @@ class Talking(PluginBase):
 		bot.sendMessage("PRIVMSG", channel, self.getSentence(bot, channel))
 
 	def listSentences(self, bot, channel, params):
-		for sentence in self.sentences:
-			bot.sendMessage("PRIVMSG", channel, sentence)
+		for i, sentence in enumerate(self.sentences):
+			bot.sendMessage("PRIVMSG", channel, str(i) + ": " + sentence)
 
 	def addSentence(self, bot, channel, params):
 		self.sentences.append(" ".join(params))
 		self.saveSentences("sentences.txt")
+
+	def delSentence(self, bot, channel, params):
+		try:
+			self.sentences.pop(params)
+			bot.sendMessage("PRIVMSG", channel, "Sentence deleted.")
+		except:
+			bot.sendMessage("PRIVMSG", channel, "Failed to delete sentence.")
 
 mainclass = Talking
