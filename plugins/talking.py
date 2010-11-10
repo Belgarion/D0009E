@@ -150,6 +150,7 @@ class Talking(PluginBase):
 	def delSentence(self, bot, channel, params):
 		try:
 			self.sentences.pop(int(params[0]))
+			self.saveSentences("sentences.txt")
 			bot.sendMessage("PRIVMSG", channel, "Sentence deleted.")
 		except:
 			bot.sendMessage("PRIVMSG", channel, "Failed to delete sentence.")
