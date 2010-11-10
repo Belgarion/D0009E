@@ -116,23 +116,29 @@ class Talking(PluginBase):
 		while not adjektiv5 or adjektiv5 == "!":
 			adjektiv5 = random.choice(self.adjektiv)[5]
 
+
+		substitutes = {"%%ADJEKTIV%%":(self.adjektiv,0),
+				"%%ADJEKTIV5%%":(self.adjektiv, 5),
+				"%%NAMN%%":(self.namn, 0),
+				"%%SUBSTANTIV%%":(self.substantiv, 0),
+				"%%SUBSTANTIV5%%":(self.substantiv, 5),
+				"%%PRONOMEN%%":(self.pronomen, 0),
+				"%%VERB%%":(self.verb, 1),
+				"%%VERB3%%":(self.verb, 3),
+				"%%VERB4%%":(self.verb, 4),
+				"%%DEFINITION1%%": (self.definitions, 0),
+				"%%NICK%%": (bot.channels[channel.upper()].names, -1)}
+
 		sentence = random.choice(self.sentences)
-		sentence = sentence.replace("%%ADJEKTIV%%", random.choice(self.adjektiv)[0])
-		sentence = sentence.replace("%%ADJEKTIV5%%", adjektiv5)
-		sentence = sentence.replace("%%NAMN%%", random.choice(self.namn)[0])
-		sentence = sentence.replace("%%SUBSTANTIV%%", random.choice(self.substantiv)[0])
-
-		substantiv5 = ""
-		while not substantiv5 or substantiv5 == "!":
-			substantiv5 = random.choice(self.substantiv)[5]
-
-		sentence = sentence.replace("%%SUBSTANTIV5%%", substantiv5)
-		sentence = sentence.replace("%%PRONOMEN%%", random.choice(self.pronomen)[0])
-		sentence = sentence.replace("%%VERB%%", random.choice(self.verb)[1])
-		sentence = sentence.replace("%%VERB3%%", random.choice(self.verb)[3])
-		sentence = sentence.replace("%%VERB4%%", random.choice(self.verb)[4])
-		sentence = sentence.replace("%%DEFINITION1%%", random.choice(self.definitions)[0])
-		sentence = sentence.replace("%%NICK%%", random.choice(bot.channels[channel.upper()].names))
+		for sub in substitutes:
+			tup = substitutes[sub]
+			word = ""
+			while not word or word == "!":
+				if tup[1] >= 0:
+					word = random.choice(tup[0])[tup[1]]
+				else:
+					word = random.choice(tup[0])
+			sentence = sentence.replace(sub, word)
 
 		return sentence
 
