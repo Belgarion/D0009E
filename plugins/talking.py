@@ -8,6 +8,7 @@ from pluginbase import PluginBase
 import random
 import shutil
 import time
+import codecs
 
 class Talking(PluginBase):
 	def __init__(self, bot):
@@ -55,7 +56,7 @@ class Talking(PluginBase):
 
 
 	def loadWords(self):
-		f = open("dict/dsso-1.44.txt")
+		f = codecs.open("dict/dsso-1.44.txt",'r','utf-8')
 
 		for line in f.readlines():
 			if line.split(":")[0] == "DEFINITION 1":
@@ -84,7 +85,7 @@ class Talking(PluginBase):
 		f.close()
 
 	def loadDict(self, filename, wordlist):
-		f = open(filename)
+		f = codecs.open(filename, 'r', 'utf-8')
 		for line in f.readlines():
 			self.namn.append([line])
 		f.close()
@@ -92,13 +93,13 @@ class Talking(PluginBase):
 	def saveSentences(self, filename):
 		shutil.move(filename, filename + ".old")
 
-		f = open(filename, 'w')
+		f = codecs.open(filename, 'w', 'utf-8')
 		for i in self.sentences:
 			print >>f, i
 		f.close()
 
 	def  loadSentences(self, filename):
-		f = open(filename, 'r')
+		f = codecs.open(filename, 'r', 'utf-8')
 		for line in f.readlines():
 			line = line.replace("\r", "")
 			line = line.replace("\n", "")
@@ -131,23 +132,24 @@ class Talking(PluginBase):
 
 		sentence = random.choice(self.sentences)
 		for sub in substitutes:
-			tup = substitutes[sub]
-			word = ""
-			while not word or word == "!":
-				if tup[1] >= 0:
-					word = random.choice(tup[0])[tup[1]]
-				else:
-					word = random.choice(tup[0])
-			sentence = sentence.replace(sub, word)
+			while sub in sentence:
+				tup = substitutes[sub]
+				word = ""
+				while not word or word == "!":
+					if tup[1] >= 0:
+						word = random.choice(tup[0])[tup[1]]
+					else:
+						word = random.choice(tup[0])
+				sentence = sentence.replace(sub, word, 1)
 
-		return sentence
+		return sentence.encode('latin1')
 
 	def talk(self, bot, channel, params):
 		bot.sendMessage("PRIVMSG", channel, self.getSentence(bot, channel))
 
 	def listSentences(self, bot, channel, params):
 		for i, sentence in enumerate(self.sentences):
-			bot.sendMessage("PRIVMSG", channel, str(i) + ": " + sentence)
+			bot.sendMessage("PRIVMSG", channel, str(i) + ": " + sentence.encode("latin1"))
 
 	def addSentence(self, bot, channel, params):
 		self.sentences.append(" ".join(params))

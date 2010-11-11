@@ -1,8 +1,7 @@
-Du är %%ADJEKTIV5%% än %%NAMN%%
+Du är %%ADJEKTIV5%% ån %%NAMN%%
 Ska %%PRONOMEN%% %%VERB%% en %%SUBSTANTIV%%?
 Hej %%NICK%% vill du med på lite %%SUBSTANTIV%%?
 Jo förresten %%NICK%%, visste du att i %%LAND%% så %%VERB4%% de %%SUBSTANTIV5%%
-har ni hört att det går ett rykte om att %%NICK%% har %%VERB3%%
 %%NICK%% det går ett rykte att du %%VERB%% %%SUBSTANTIV%% stämmer det?
 %%NICK%%: du är allt bra %%ADJEKTIV%% du :)
 %%NICK%%: du får sluta vara så jävla %%ADJEKTIV%%
@@ -14,5 +13,5 @@ Asså jag orkar inte med mer %%SUBSTANTIV%%
 Jag har fått en massa spam om %%SUBSTANTIV5%%, ska jag ta illa upp?
 Äh, nu får det vara nog. Nu ska jag gå och %%VERB%%
 /away %%SUBSTANTIV%%
-Asså är inte det typ%%DEFINITION1%%
-�r det n�gon h�r som vet vart man enklast kan f� tag p� en %%SUBSTANTIV%%, jag skulle beh�va en till att %%VERB%%, annars blir det s� sv�rt sen n�r man ska %%VERB%% %%SUBSTANTIV%%.
+Juste, har ni hört ryktet om att %%NICK%% har %%VERB3%% :D:D:D
+Är det någon här som vet vart man enklast kan få tag på en %%SUBSTANTIV%%, jag skulle behöva en till att %%VERB%%, annars blir det så svårt sen när man ska %%VERB%% %%SUBSTANTIV%%. De måste jue vara %%ADJEKTIV%% liktsom...
