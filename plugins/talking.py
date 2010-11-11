@@ -15,7 +15,7 @@ class Talking(PluginBase):
 		bot.registerQueryCommand("!listsentences", self.listSentences)
 		bot.registerQueryCommand("!addsentence", self.addSentence)
 		bot.registerQueryCommand("!delsentence", self.delSentence)
-
+		bot.registerQueryCommand("!repsentence", self.repSentence)
 		self.substantiv = []
 		self.pronomen = [["jag"], ["du"], ["vi"], ["ni"], ["man kanske"]]
 		self.adjektiv = []
@@ -160,7 +160,13 @@ class Talking(PluginBase):
 			bot.sendMessage("PRIVMSG", channel, "Sentence deleted.")
 		except:
 			bot.sendMessage("PRIVMSG", channel, "Failed to delete sentence.")
-
+	def repSentence(self, bot, channel, params):
+		try:
+			self.sentences[int(params[0])] = " ".join(params[1:])
+			self.saveSentences("sentences.txt")
+			bot.sendMessage("PRIVMSG", channel, "Sentence replaced.")
+		except:
+			bot.sendMessage("PRIVMSG", channel, "Failed to replace sentence.")
 	def on_tick(self, bot):
 		hour = time.localtime().tm_hour
 		if time.time() - bot.nextTalk > 0 and hour > 6 and hour <= 23:
