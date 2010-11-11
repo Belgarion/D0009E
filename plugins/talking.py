@@ -9,6 +9,7 @@ import random
 import shutil
 import time
 import codecs
+import traceback
 
 class Talking(PluginBase):
 	def __init__(self, bot):
@@ -152,7 +153,7 @@ class Talking(PluginBase):
 			bot.sendMessage("PRIVMSG", channel, str(i) + ": " + sentence.encode("latin1"))
 
 	def addSentence(self, bot, channel, params):
-		self.sentences.append(" ".join(params))
+		self.sentences.append(" ".join(params).decode("utf-8"))
 		self.saveSentences("sentences.txt")
 
 	def delSentence(self, bot, channel, params):
@@ -164,11 +165,12 @@ class Talking(PluginBase):
 			bot.sendMessage("PRIVMSG", channel, "Failed to delete sentence.")
 	def repSentence(self, bot, channel, params):
 		try:
-			self.sentences[int(params[0])] = " ".join(params[1:])
+			self.sentences[int(params[0])] = " ".join(params[1:]).decode("utf-8")
 			self.saveSentences("sentences.txt")
 			bot.sendMessage("PRIVMSG", channel, "Sentence replaced.")
 		except:
 			bot.sendMessage("PRIVMSG", channel, "Failed to replace sentence.")
+			traceback.print_exc()
 	def on_tick(self, bot):
 		hour = time.localtime().tm_hour
 		if time.time() - bot.nextTalk > 0 and hour > 6 and hour <= 23:
