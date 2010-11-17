@@ -3,6 +3,7 @@ from pluginbase import PluginBase
 
 import httplib
 import time
+import traceback
 
 class Forecast(PluginBase):
 	def __init__(self, bot):

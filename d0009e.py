@@ -85,6 +85,10 @@ class Bot:
 
 		self.connect()
 		while self.running:
+			if not self.recvThread.connected:
+				time.sleep(30)
+				self.connect()
+
 			try:
 				self.handleCommands()
 			except:
@@ -281,6 +285,7 @@ class RecvThread(threading.Thread):
 	def __init__(self, sock):
 		self.sock = sock
 		self.quit = False
+		self.connected = True
 		self.commands = []
 		threading.Thread.__init__(self)
 
@@ -295,7 +300,7 @@ class RecvThread(threading.Thread):
 				for command in commands:
 					self.addCommand(command)
 			except socket.timeout:
-				continue
+				self.connected = False
 			except Exception, e:
 				traceback.print_exc()
 				time.sleep(0.1)
