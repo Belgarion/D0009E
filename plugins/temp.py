@@ -2,6 +2,7 @@
 from pluginbase import PluginBase
 
 import httplib
+import random
 
 class Temp(PluginBase):
 	def __init__(self, bot):
@@ -17,20 +18,25 @@ class Temp(PluginBase):
 			city = ""
 			temperature = ""
 
-			conn = httplib.HTTPConnection("wap.temperatur.nu")
-			conn.request("GET", "/%s" % params[0])
-			resp = conn.getresponse()
-			data = resp.read()
+			try:
+				conn = httplib.HTTPConnection("wap.temperatur.nu")
+				conn.request("GET", "/%s" % params[0])
+				resp = conn.getresponse()
+				data = resp.read()
 
-			lines = data.split("\n")
-			for line in lines:
-				if "Temp:" in line:
-					temperature, datetime, city = \
-							[i.strip('</p>') for i in line.split('<p>')]
-					break
+				lines = data.split("\n")
+				for line in lines:
+					if "Temp:" in line:
+						temperature, datetime, city = \
+								[i.strip('</p>') for i in line.split('<p>')]
+						break
 
-			bot.sendMessage("PRIVMSG", channel,
-					"Temperature in %s: %s" % (city, temperature))
+				bot.sendMessage("PRIVMSG", channel,
+						"Temperature in %s: %s" % (city, temperature))
+			except Exception, e:
+				bot.sendMessage("PRIVMSG", channel,
+						"Error getting temperature in %s, but I'm guessing it's"
+						" %s degrees Celcius" % (params[0], random.randint(-40,60)))
 			return
 
 		conn = httplib.HTTPConnection("marge.campus.ltu.se")
