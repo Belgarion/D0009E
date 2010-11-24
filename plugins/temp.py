@@ -20,7 +20,8 @@ class Temp(PluginBase):
 
 			try:
 				conn = httplib.HTTPConnection("wap.temperatur.nu")
-				conn.request("GET", "/%s" % params[0])
+				conn.request("GET", "/%s" % params[0].lower().replace("å","a").
+						replace("ä", "a").replace("ö", "o"))
 				resp = conn.getresponse()
 				data = resp.read()
 
