@@ -87,10 +87,8 @@ class Temp(PluginBase):
 			data = data.replace(">",">\n")
 			lines = data.split("\n")
 			for line in lines:
-				print line
 				m = re.match(r'\s*<city data="(.*)"/>', line)
 				if m:
-					print m.groups()
 					city = m.groups(1)[0]
 
 				m = re.match(r'\s*<temp_c data="(.*)"/>', line)
@@ -98,12 +96,13 @@ class Temp(PluginBase):
 					temperature = m.groups(1)[0]
 					break
 
+			if not temperature or not city:
+				raise ValueError
+
 			bot.sendMessage("PRIVMSG", channel,
 					"Temperature in %s: %s degrees Celsius" % \
 							(city, temperature))
 		except Exception, e:
-			import traceback
-			traceback.print_exc()
 			return False
 
 		return True
