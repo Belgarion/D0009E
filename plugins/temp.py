@@ -3,6 +3,7 @@ from pluginbase import PluginBase
 
 import httplib
 import random
+import re
 
 class Temp(PluginBase):
 	def __init__(self, bot):
@@ -18,27 +19,12 @@ class Temp(PluginBase):
 			city = ""
 			temperature = ""
 
-			try:
-				conn = httplib.HTTPConnection("wap.temperatur.nu")
-				conn.request("GET", "/%s" % params[0].lower().replace("å","a").
-						replace("ä", "a").replace("ö", "o"))
-				resp = conn.getresponse()
-				data = resp.read()
-
-				lines = data.split("\n")
-				for line in lines:
-					if "Temp:" in line:
-						temperature, datetime, city = \
-								[i.strip('</p>') for i in line.split('<p>')]
-						break
-
-				bot.sendMessage("PRIVMSG", channel,
-						"Temperature in %s: %s" % (city, temperature))
-			except Exception, e:
-				bot.sendMessage("PRIVMSG", channel,
-						"Error getting temperature in %s, but I'm guessing it's"
-						" %s degrees Celcius" % (params[0], random.randint(-40,60)))
+			for f in [self.specialtemp, self.temperaturnu, \
+					self.googleweather, self.errortemp]:
+				if f(bot, channel, params):
+					break
 			return
+
 
 		conn = httplib.HTTPConnection("marge.campus.ltu.se")
 		conn.request("GET", "/temp/")
@@ -53,5 +39,79 @@ class Temp(PluginBase):
 
 		bot.sendMessage("PRIVMSG", channel, "Temperature: %s" %
 				(temperature))
+
+	def specialtemp(self, bot, channel, params):
+		temp = None
+		if params[0] == "special":
+			temp = "Too hot"
+
+		if temp:
+			bot.sendMessage("PRIVMSG", channel,
+					"Temperature in %s: %s" % (params[0], temp))
+			return True
+
+		return False
+
+	def temperaturnu(self, bot, channel, params):
+		try:
+			conn = httplib.HTTPConnection("wap.temperatur.nu")
+			conn.request("GET", "/%s" % params[0].lower().replace("å","a").
+					replace("ä", "a").replace("ö", "o"))
+			resp = conn.getresponse()
+			data = resp.read()
+
+			lines = data.split("\n")
+			for line in lines:
+				if "Temp:" in line:
+					temperature, datetime, city = \
+							[i.strip('</p>') for i in line.split('<p>')]
+					break
+
+			bot.sendMessage("PRIVMSG", channel,
+					"Temperature in %s: %s" % (city, temperature))
+		except Exception, e:
+			return False
+
+		return True
+
+	def googleweather(self, bot, channel, params):
+		city = ""
+		temperature = ""
+
+		try:
+			conn = httplib.HTTPConnection("www.google.com")
+			conn.request("GET", "/ig/api?weather=%s" % params[0])
+			resp = conn.getresponse()
+			data = resp.read()
+
+			data = data.replace(">",">\n")
+			lines = data.split("\n")
+			for line in lines:
+				print line
+				m = re.match(r'\s*<city data="(.*)"/>', line)
+				if m:
+					print m.groups()
+					city = m.groups(1)[0]
+
+				m = re.match(r'\s*<temp_c data="(.*)"/>', line)
+				if m:
+					temperature = m.groups(1)[0]
+					break
+
+			bot.sendMessage("PRIVMSG", channel,
+					"Temperature in %s: %s degrees Celsius" % \
+							(city, temperature))
+		except Exception, e:
+			import traceback
+			traceback.print_exc()
+			return False
+
+		return True
+
+	def errortemp(self, bot, channel, params):
+		bot.sendMessage("PRIVMSG", channel,
+				"Error getting temperature in %s, but I'm guessing it's"
+				" %s degrees Celcius" % (params[0], random.randint(-40,60)))
+		return True
 
 mainclass = Temp
