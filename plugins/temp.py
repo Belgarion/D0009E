@@ -53,6 +53,7 @@ class Temp(PluginBase):
 		return False
 
 	def temperaturnu(self, bot, channel, params):
+		return False
 		try:
 			conn = httplib.HTTPConnection("wap.temperatur.nu")
 			conn.request("GET", "/%s" % params[0].lower().replace("å","a").
@@ -77,6 +78,7 @@ class Temp(PluginBase):
 	def googleweather(self, bot, channel, params):
 		city = ""
 		temperature = ""
+		humidity = ""
 
 		try:
 			conn = httplib.HTTPConnection("www.google.com")
@@ -94,14 +96,17 @@ class Temp(PluginBase):
 				m = re.match(r'\s*<temp_c data="(.*)"/>', line)
 				if m:
 					temperature = m.groups(1)[0]
-					break
+
+				m = re.match(r'\s*<humidity data="(.*)"/>', line)
+				if m:
+					humidity = m.groups(1)[0]
 
 			if not temperature or not city:
 				raise ValueError
 
 			bot.sendMessage("PRIVMSG", channel,
-					"Temperature in %s: %s degrees Celsius" % \
-							(city, temperature))
+					"Temperature in %s: %s degrees Celsius, %s" % \
+							(city, temperature, humidity))
 		except Exception, e:
 			return False
 
