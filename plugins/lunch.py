@@ -24,7 +24,11 @@ class Lunch(PluginBase):
 			wday += 1
 			mday += 1
 
-		dateString = "%s %s/%s" % (weekdays[wday % 7], mday, tm.tm_mon)
+		day = weekdays[wday % 7]
+		dateString = "%s %s/%s" % (day, mday, tm.tm_mon)
+
+		if place == "unik":
+			return self.getLunchUnik(day)
 
 		try:
 			f = urllib2.urlopen("http://stuk.nu/lunch.aspx?menuID=11")
@@ -59,5 +63,31 @@ class Lunch(PluginBase):
 				break
 
 		return buf
+
+	def getLunchUnik(self, day):
+		try:
+			f = urllib2.urlopen("http://www.unikcafe.se/hem.html")
+			data = f.read()
+			data = data.replace("&nbsp;", " ")
+			data = data.replace("&amp;", "&")
+			data = data.replace("\r", "")
+			f.close()
+		except:
+			return "Error"
+
+		week = ".."
+
+		m = re.search('Veckans lunch (.+?)<', data)
+		if m:
+			week = m.group(1)
+
+		m = re.search('%s :</span> <br />(.*?)</p>' % day.lower(), data.replace("\n",""))
+		if m:
+			options = m.group(1).replace("<br />", " || ").replace("    - ", "")
+			options = re.sub('<.+?>', '', options)
+		else:
+			options = "Error"
+
+		return "Uni:k: %s %s: %s" % (day, week, options)
 
 mainclass = Lunch

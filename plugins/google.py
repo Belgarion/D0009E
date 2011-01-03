@@ -27,12 +27,8 @@ class Google(PluginBase):
 		data = file.read(1024*1024)
 		file.close()
 
-		print data
-		print "----"
-
 		m = re.search('<h3 class="r"><a href="(.*?)".*?>(.*?)<\/a>', data)
 		if m:
-			print m.groups()
 			title = re.sub('<.+?>', '', m.group(2))
 			bot.sendMessage("PRIVMSG", channel, "%s [%s]" % (title, m.group(1)))
 		else:
