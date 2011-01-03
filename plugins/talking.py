@@ -172,6 +172,7 @@ class Talking(PluginBase):
 			bot.sendMessage("PRIVMSG", channel, "Failed to replace sentence.")
 			traceback.print_exc()
 	def on_tick(self, bot):
+		return
 		hour = time.localtime().tm_hour
 		if time.time() - bot.nextTalk > 0 and hour > 6 and hour <= 23:
 			bot.nextTalk = time.time()  + random.randint(1800, 7200)

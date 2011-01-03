@@ -86,6 +86,7 @@ class Bot:
 		self.connect()
 		while self.running:
 			if not self.recvThread.connected:
+				print "Not connected, reconnecting"
 				time.sleep(30)
 				self.connect()
 
@@ -291,7 +292,7 @@ class RecvThread(threading.Thread):
 
 	def run(self):
 		buffer = ""
-		self.sock.settimeout(5)
+		self.sock.settimeout(30)
 		while not self.quit:
 			try:
 				buffer += self.sock.recv(1024)

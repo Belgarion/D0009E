@@ -19,7 +19,7 @@ class Course(PluginBase):
 			return "Invalid course code"
 
 		try:
-			url = "http://www.ltu.se/edu/course/%s/%s" % (courseCode[:3], courseCode)
+			url = "http://www.ltu.se/edu/course/%s/%s?ugglanCat=student" % (courseCode[:3], courseCode)
 			f = urllib2.urlopen(url)
 			data = f.read()
 			f.close()
