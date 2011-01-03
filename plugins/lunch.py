@@ -27,8 +27,10 @@ class Lunch(PluginBase):
 		day = weekdays[wday % 7]
 		dateString = "%s %s/%s" % (day, mday, tm.tm_mon)
 
-		if place == "unik":
+		if place.lower() == "unik":
 			return self.getLunchUnik(day)
+		elif place.lower() == "gästis":
+			return self.getLunchGastis(day)
 
 		try:
 			f = urllib2.urlopen("http://stuk.nu/lunch.aspx?menuID=11")
@@ -89,5 +91,27 @@ class Lunch(PluginBase):
 			options = "Error"
 
 		return "Uni:k: %s %s: %s" % (day, week, options)
+
+	def getLunchGastis(self, day):
+		try:
+			f = urllib2.urlopen("http://www.kalix.nu/scripts/lunch.asp?uid=1103")
+			data = f.read()
+			data = data.replace("&nbsp;", " ")
+			data = data.replace("&amp;", "&")
+			data = data.replace("\r", "")
+			data = data.replace("\n", "")
+			f.close()
+		except:
+			return "Error"
+
+		m = re.search('%s</span><br>(.*?)</td>' % day, data)
+		if m:
+			options = m.group(1)
+			options = options.replace("<BR>", " || ")
+			options = re.sub('<.+?>', '', options)
+		else:
+			options = "Error"
+
+		return "Gästis: %s: %s" % (day, options)
 
 mainclass = Lunch
