@@ -138,22 +138,26 @@ class Bot:
 		self.help[command] = helpMessage
 
 	def sendMessage(self, action, target, message = ""):
-		message = str(message)
-		message = message.replace("\r", "")
-		message = message.replace("\n", "")
+		if type(message) != type([]):
+			message = [message]
 
-		if len(message) >= 450:
-			message = "Error: Message too long"
+		for m in message:
+			m = str(m)
+			m = m.replace("\r", "")
+			m = m.replace("\n", "")
 
-		if message:
-			buf = "%s %s :%s\r\n" % (action, target, message)
-		else:
-			buf = "%s %s\r\n" % (action, target)
+			if len(m) >= 450:
+				m = "Error: Message too long"
 
-		print "[031m>>[0m", buf,
-		while buf:
-			sent = self.sock.send(buf)
-			buf = buf[sent:]
+			if m:
+				buf = "%s %s :%s\r\n" % (action, target, m)
+			else:
+				buf = "%s %s\r\n" % (action, target)
+
+			print "[031m>>[0m", buf,
+			while buf:
+				sent = self.sock.send(buf)
+				buf = buf[sent:]
 
 	def handleCommands(self):
 		while self.recvThread.commands != []:
@@ -301,7 +305,8 @@ class RecvThread(threading.Thread):
 				for command in commands:
 					self.addCommand(command)
 			except socket.timeout:
-				self.connected = False
+				print "Timeout"
+				#self.connected = False
 			except Exception, e:
 				traceback.print_exc()
 				time.sleep(0.1)
