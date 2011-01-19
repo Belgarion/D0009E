@@ -89,7 +89,7 @@ class Lunch(PluginBase):
 		if m:
 			week = m.group(1)
 
-		m = re.search('%s :</span> <br />(.*?)</p>' % day.lower(), data.replace("\n",""))
+		m = re.search('%s :</span>\s*<br />(.*?)</p>' % day.lower(), data.replace("\n",""))
 		if m:
 			options = m.group(1).replace("<br />", " || ").replace("    - ", "")
 			options = re.sub('<.+?>', '', options)
