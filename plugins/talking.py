@@ -14,6 +14,7 @@ import traceback
 class Talking(PluginBase):
 	def __init__(self, bot):
 		bot.registerCommand("!talk", self.talk)
+		bot.registerCommand("!rykte", self.rykte)
 		bot.registerQueryCommand("!listsentences", self.listSentences)
 		bot.registerQueryCommand("!addsentence", self.addSentence)
 		bot.registerQueryCommand("!delsentence", self.delSentence)
@@ -108,12 +109,10 @@ class Talking(PluginBase):
 		f.close()
 
 	def getSentence(self, bot, channel):
-		"""return "%s %s %s %s" % \
-				(random.choice(self.pronomen)[0],
-						random.choice(self.verb)[0],
-						random.choice(self.substantiv)[0],
-						random.choice(self.adverb)[0])"""
+		sentence = random.choice(self.sentences)
+		return self.subSentence(bot, channel, sentence)
 
+	def subSentence(self, bot, channel, sentence):
 		adjektiv5 = ""
 		while not adjektiv5 or adjektiv5 == "!":
 			adjektiv5 = random.choice(self.adjektiv)[5]
@@ -131,7 +130,6 @@ class Talking(PluginBase):
 				"%%DEFINITION1%%": (self.definitions, 0),
 				"%%NICK%%": (bot.channels[channel.upper()].names, -1)}
 
-		sentence = random.choice(self.sentences)
 		for sub in substitutes:
 			while sub in sentence:
 				tup = substitutes[sub]
@@ -147,6 +145,13 @@ class Talking(PluginBase):
 
 	def talk(self, bot, channel, params):
 		bot.sendMessage("PRIVMSG", channel, self.getSentence(bot, channel))
+
+	def rykte(self, bot, channel, params):
+		nick = "%%NICK%%"
+		if len(params) > 0:
+			nick = params[0]
+		bot.sendMessage("PRIVMSG", channel, self.subSentence(bot, channel,
+			unicode("Det går ett rykte i dataettan att %s har %%%%VERB3%%%%." % (nick), 'utf-8')))
 
 	def listSentences(self, bot, channel, params):
 		for i, sentence in enumerate(self.sentences):
