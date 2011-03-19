@@ -28,14 +28,14 @@ class Tenta(PluginBase):
 			m = re.search('tabellen med tentorna b.rjar -->'
 					+ '(.*?)<!-- tabellen med tentorna slutar', data)
 			if m:
-				tentor = m.group(1).replace("<tr", "\n<tr").replace("</td>",", ")
+				tentor = m.group(1).replace("<tr", "\n<tr").replace("</td>","; ")
 				tentor = re.sub(r'<.+?>', '', tentor)
 
 				results = []
 				header = ''
 				for t in tentor.split('\n'):
 					if t == '': continue
-					t = t.split(",")
+					t = t.split(";")
 					if header == '':
 						header = t
 						continue
@@ -47,6 +47,7 @@ class Tenta(PluginBase):
 					results.append(line)
 
 
+				print results
 				if len(results) > 2:
 					return results[:1]+['And (%d) more ( %s )' % (len(results) - 1, url)]
 				return results
