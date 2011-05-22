@@ -6,6 +6,8 @@ nick = thebot
 
 [misc]
 lastforecast = 0
+lasttwittercheck = 0
+lasttwitterstatustime = 0
 
 [users]
 admins = admin1:password1 admin2:password2

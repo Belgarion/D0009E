@@ -65,10 +65,14 @@ class Bot:
 		self.users = [tuple(i.split(":")) for i in admins.split()]
 
 		self.lastForecast = self.config.getfloat('misc', 'lastForecast')
+		self.lastTwitterStatusTime = self.config.getfloat('misc', 'lastTwitterStatusTime')
+		self.lastTwitterCheck = self.config.getfloat('misc', 'lastTwitterCheck')
 
 	def saveSettings(self):
 		self.config.set('connection', 'channels', " ".join(self.chans))
 		self.config.set('misc', 'lastForecast', str(self.lastForecast))
+		self.config.set('misc', 'lastTwitterCheck', str(self.lastTwitterCheck))
+		self.config.set('misc', 'lastTwitterStatusTime', str(self.lastTwitterStatusTime))
 
 		admins = " ".join([":".join(i) for i in self.users])
 		self.config.set('users', 'admins', admins)
