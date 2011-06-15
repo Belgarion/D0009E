@@ -10,7 +10,7 @@ class Temp(PluginBase):
 		bot.registerCommand("!temp", self.handleTemp)
 		bot.registerCommand("!temperatur", self.handleTemp)
 		bot.registerCommand("!temperature", self.handleTemp)
-		bot.addHelp("temp", "Usage: !temp [city]")
+		bot.addHelp("temp", "Usage: !temp [location]")
 
 	def handleTemp(self, bot, channel, params):
 		temperature = -273.15
@@ -44,6 +44,12 @@ class Temp(PluginBase):
 		temp = None
 		if params[0] == "special":
 			temp = "Too hot"
+		elif params[0] == "serverrum":
+			conn = httplib.HTTPConnection("graphs.se")
+			conn.request("GET", "/serverrum.txt")
+			resp = conn.getresponse()
+			data = resp.read()
+			temp = data
 
 		if temp:
 			bot.sendMessage("PRIVMSG", channel,
