@@ -36,11 +36,11 @@ class QuietMessages(PluginBase):
 	def sendQuietMessages(self, bot):
 		for channel, chanstats in bot.channels.iteritems():
 			if time.time() - chanstats.lastMessage > 24*60*60: # After 24 hours
+				chanstats.lastMessage = time.time()
 				try:
 					bot.sendMessage("PRIVMSG",
 							channel, random.choice(self.quiet_messages))
 				except:
 					traceback.print_exc()
-				chanstats.lastMessage = time.time()
 
 mainclass = QuietMessages

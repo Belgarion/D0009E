@@ -10,10 +10,10 @@ class TwitterReader(PluginBase):
 		pass
 
 	def on_tick(self, bot):
-		if time.time() - bot.lastTwitterCheck > 60:
+		if time.time() - bot.lastTwitterCheck > 300:
 			bot.lastTwitterCheck = time.time()
 			try:
-				self.handleTwitter(bot, "#brokenbrain", [])
+				self.handleTwitter(bot, "#datasektionen", [])
 			except:
 				traceback.print_exc()
 
