@@ -44,11 +44,14 @@ class Bot:
 		try:
 			reload(__import__('plugins'))
 			for i in __import__('plugins').__all__:
-				plugin = __import__('plugins.%s' % i, fromlist=[None])
-				reload(plugin)
-				if "mainclass" in dir(plugin):
-					print "Loading", i
-					self.plugins.append(plugin.mainclass(self))
+				try:
+					plugin = __import__('plugins.%s' % i, fromlist=[None])
+					reload(plugin)
+					if "mainclass" in dir(plugin):
+						print "Loading", i
+						self.plugins.append(plugin.mainclass(self))
+				except:
+					traceback.print_exc()
 		except:
 			traceback.print_exc()
 
