@@ -314,6 +314,12 @@ class RecvThread(threading.Thread):
 			except socket.timeout:
 				print "Timeout"
 				#self.connected = False
+			except socket.error, (value, message):
+				if value == 104: # connection reset by peer
+					self.connected = False
+				else:
+					traceback.print_exc()
+					time.sleep(0.1)
 			except Exception, e:
 				traceback.print_exc()
 				time.sleep(0.1)
