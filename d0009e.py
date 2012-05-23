@@ -72,6 +72,7 @@ class Bot:
 		self.lastTwitterCheck = self.config.getfloat('misc', 'lastTwitterCheck')
 
 	def saveSettings(self):
+		self.lastSaveSettings = time.time()
 		self.config.set('connection', 'channels', " ".join(self.chans))
 		self.config.set('misc', 'lastForecast', str(self.lastForecast))
 		self.config.set('misc', 'lastTwitterCheck', str(self.lastTwitterCheck))
@@ -80,11 +81,17 @@ class Bot:
 		admins = " ".join([":".join(i) for i in self.users])
 		self.config.set('users', 'admins', admins)
 
-		f = open("d0009e.cfg", "w")
-		self.config.write(f)
-		f.close()
+		try:
+			f = open("d0009e.cfg", "w")
+			self.config.write(f)
+			f.close()
+		except Exception, e:
+			print "saveSettings failed"
+			traceback.print_exc()
 
 	def run(self):
+		self.lastSaveSettings = 0
+
 		self.running = True
 
 		self.recvThread = RecvThread(self.sock)
@@ -99,6 +106,8 @@ class Bot:
 
 			try:
 				self.handleCommands()
+				if (time.time() - self.lastSaveSettings > 600):
+					self.saveSettings()
 			except:
 				traceback.print_exc()
 
@@ -125,15 +134,23 @@ class Bot:
 		self.recvThread.join()
 
 	def connect(self):
-		self.joined = False
-		self.sock.close()
+		while True:
+			try:
+				self.joined = False
+				self.sock.close()
 
-		self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-		self.recvThread.sock = self.sock
+				self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+				self.recvThread.sock = self.sock
 
-		self.sock.connect(self.irc_server)
-		self.sendMessage('USER', '%s 8 *' % self.nick, 'Botten')
-		self.sendMessage('NICK', self.nick)
+				self.sock.connect(self.irc_server)
+				self.sendMessage('USER', '%s 8 *' % self.nick, 'Botten')
+				self.sendMessage('NICK', self.nick)
+				self.recvThread.connected = True
+				return
+			except Exception, e:
+				traceback.print_exc()
+				print "Connection failed, retrying in 10 seconds"
+				time.sleep(10)
 
 	def registerCommand(self, command, func):
 		self.commands[command] = func
@@ -304,6 +321,7 @@ class RecvThread(threading.Thread):
 	def run(self):
 		buffer = ""
 		self.sock.settimeout(30)
+		endpoint_notconnected_count = 0
 		while not self.quit:
 			try:
 				buffer += self.sock.recv(1024)
@@ -311,16 +329,35 @@ class RecvThread(threading.Thread):
 				buffer = buffer[buffer.rfind("\r\n")+2:]
 				for command in commands:
 					self.addCommand(command)
+				endpoint_notconnected_count = 0
 			except socket.timeout:
 				print "Timeout"
 				#self.connected = False
 			except socket.error, (value, message):
-				if value == 104: # connection reset by peer
+				if value == 103: # software caused connection reset
+					print value, message
+					self.connected = False
+				elif value == 104: # connection reset by peer
+					print value, message
+					self.connected = False
+				elif value == 107: # transport endpoint not connected
+					print value, message
+					endpoint_notconnected_count += 1
+					if endpoint_notconnected_count > 20:
+						self.connected = False
+						endpoint_notconnected_count = 0
+					time.sleep(2)
+				elif value == 110: # connection timed out
+					print value, message
+					print "Sleeping 10 seconds, then retrying"
+					time.sleep(10)
 					self.connected = False
 				else:
 					traceback.print_exc()
+					print "else:", value, message
 					time.sleep(0.1)
 			except Exception, e:
+				print "other exception"
 				traceback.print_exc()
 				time.sleep(0.1)
 
