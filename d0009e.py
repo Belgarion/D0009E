@@ -22,7 +22,7 @@ class Bot:
 
 		self.channels = {}
 		for chan in self.chans:
-			self.channels[chan] = ChannelStats()
+			self.channels[chan.upper()] = ChannelStats()
 		self.names_cur_channel = None
 
 		self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
