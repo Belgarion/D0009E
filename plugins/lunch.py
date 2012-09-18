@@ -39,7 +39,7 @@ class Lunch(PluginBase):
 			return self.getLunchAurorum(day)
 
 		try:
-			f = urllib2.urlopen("http://stuk.nu/Lunch2.aspx?menuID=11")
+			f = urllib2.urlopen("http://www.stuk.nu/menyer/lunchmeny/")
 			data = f.read()
 			data = data.replace("&nbsp;", " ")
 			data = data.replace("\r", "")
@@ -63,11 +63,7 @@ class Lunch(PluginBase):
 
 			if found > 0:
 				buf += line
-				if found < 2:
-					buf += ", "
 				found += 1
-
-			if found > 2:
 				break
 
 		return buf
