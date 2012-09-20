@@ -141,7 +141,7 @@ class Talking(PluginBase):
 						word = random.choice(tup[0])
 				sentence = sentence.replace(sub, word, 1)
 
-		return sentence.encode('latin1')
+		return sentence.encode('utf8')
 
 	def talk(self, bot, channel, params):
 		bot.sendMessage("PRIVMSG", channel, self.getSentence(bot, channel))
@@ -155,7 +155,7 @@ class Talking(PluginBase):
 
 	def listSentences(self, bot, channel, params):
 		for i, sentence in enumerate(self.sentences):
-			bot.sendMessage("PRIVMSG", channel, str(i) + ": " + sentence.encode("latin1"))
+			bot.sendMessage("PRIVMSG", channel, str(i) + ": " + sentence.encode("utf8"))
 
 	def addSentence(self, bot, channel, params):
 		self.sentences.append(" ".join(params).decode("utf-8"))
