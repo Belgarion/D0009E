@@ -12,12 +12,7 @@ class Lunch(PluginBase):
 
 	def handleLunch(self, bot, channel, params):
 		msg = self.getLunch(" ".join(params))
-		msglst = msg.split("\n")
-		for i,x in enumerate(msglst):
-			bot.sendMessage("PRIVMSG", channel, x)
-			if i%5 == 0:
-				print "sleeping"
-				time.sleep(3.5)
+		bot.sendMessage("PRIVMSG", channel, msg)
 
 	def getLunch(self, place = ""):
 		tm = time.localtime()
@@ -113,7 +108,8 @@ class Lunch(PluginBase):
 			f.close()
 		except:
 			return "Error"
-		return "RAW DELI: %s v%s: %s" % (day, week, options)
+		return ["Trasigt mycket output, klaga på yugge", "RAW DELI: %s v%s:" % (day, week)] + options.split("\n")
+
 	def getLunchAurorum(self, day):
 		try:
 			f = urllib2.urlopen("http://www.restaurangaurorum.se/page_lunch_utskr.aspx")
@@ -161,7 +157,8 @@ class Lunch(PluginBase):
 		except:
 			return "Error"
 
-		return "Centrumresturangen: %s v.%s: %s" % (day, week, "\n"+options)
+		return ["Massiv output, klaga på yugge",
+			"Centrumresturangen: %s v.%s:" % (day, week)] + options.split("\n")
 
 	def getLunchTeknikensHus(self, day):
 		return "Teknikens Hus: Not yet implemented"

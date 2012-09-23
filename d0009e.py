@@ -165,7 +165,10 @@ class Bot:
 		if type(message) != type([]):
 			message = [message]
 
-		for m in message:
+		for i,m in enumerate(message):
+			if i%5: time.sleep(2)
+			print m
+
 			m = str(m)
 			m = m.replace("\r", "")
 			m = m.replace("\n", "")
