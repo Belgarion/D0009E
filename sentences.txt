@@ -1,4 +1,5 @@
-Du är %%ADJEKTIV5%% ån %%NAMN%%
+Hörde ni att Apple ska stämma en %%YRKE%% från %%LAND%%, tydligen så har de patent på %%SUBSTANTIV%%.
+Du är %%ADJEKTIV5%% än %%NAMN%%
 Ska %%PRONOMEN%% %%VERB%% en %%SUBSTANTIV%%?
 Hej %%NICK%% vill du med på lite %%SUBSTANTIV%%?
 Jo förresten %%NICK%%, visste du att i %%LAND%% så %%VERB4%% de %%SUBSTANTIV5%%
@@ -14,5 +15,6 @@ Jag har fått en massa spam om %%SUBSTANTIV5%%, ska jag ta illa upp?
 Äh, nu får det vara nog. Nu ska jag gå och %%VERB%%
 /away %%SUBSTANTIV%%
 Asså är inte det typ%%DEFINITION1%%
-Är det någon här som vet vart man enklast kan få tag på en %%SUBSTANTIV%%, jag skulle behöva en till att %%VERB%%, annars blir det så svårt sen när man ska %%VERB%% %%SUBSTANTIV%%. De måste jue vara %%ADJEKTIV%% liktsom...
+Är det någon här som vet vart man enklast kan få tag på en %%SUBSTANTIV%%, jag skulle behöva en till att %%VERB%%, annars blir det så svårt sen när man ska %%VERB%% %%SUBSTANTIV%%. De måste ju vara %%ADJEKTIV%% liktsom...
 Juste, har ni hört ryktet om att %%NICK%% har %%VERB3%% :D:D:D
+Du %%NICK%%, jag har ett uppdrag till dig. Skulle du kunna programmera ett program som låter mig %%VERB%% %%SUBSTANTIV%%?

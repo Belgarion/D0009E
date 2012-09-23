@@ -8,10 +8,16 @@ import re
 class Lunch(PluginBase):
 	def __init__(self, bot):
 		bot.registerCommand("!lunch", self.handleLunch)
-		bot.addHelp("lunch", "Lunch @ STUK")
+		bot.addHelp("lunch", "!lunch resturang (stuk,unik,centrum,husmans,aurorum,rawdeli,dazhong)")
 
 	def handleLunch(self, bot, channel, params):
-		bot.sendMessage("PRIVMSG", channel, self.getLunch(" ".join(params)))
+		msg = self.getLunch(" ".join(params))
+		msglst = msg.split("\n")
+		for i,x in enumerate(msglst):
+			bot.sendMessage("PRIVMSG", channel, x)
+			if i%5 == 0:
+				print "sleeping"
+				time.sleep(3.5)
 
 	def getLunch(self, place = ""):
 		tm = time.localtime()
@@ -37,6 +43,10 @@ class Lunch(PluginBase):
 			return self.getLunchTeknikensHus(dateString)
 		elif place.lower() == "aurorum":
 			return self.getLunchAurorum(day)
+		elif place.lower() == "rawdeli":
+			return self.getLunchRawDeli(day)
+		elif place.lower() == "dazhong":
+			return self.getLunchDazhong()
 
 		try:
 			f = urllib2.urlopen("http://www.stuk.nu/menyer/lunchmeny/")
@@ -67,33 +77,43 @@ class Lunch(PluginBase):
 				break
 
 		return buf
-
+	def getLunchDazhong(self):
+		return "Dazhong: Vi serverar åtta varmrätter, salladsbuffé och nybakat bröd varje dag. Kaffe med Friterade bananer och glass till efterrätt. 75:-"
 	def getLunchUnik(self, day):
+		week = ".."
+		options = ""
 		try:
-			f = urllib2.urlopen("http://www.unikcafe.se/hem.html")
+			f = urllib2.urlopen("http://www.hittalunchen.se/Access/Meny.aspx?companyID=66&amp;css=unik&amp;showHeader=1")
 			data = f.read()
-			data = data.replace("&nbsp;", " ")
-			data = data.replace("&amp;", "&")
-			data = data.replace("\r", "")
+			dagdish =  re.search("""<div class="day"><span class="name">"""+day+"""</span>(.*?)<div class="always">""",data,re.DOTALL | re.MULTILINE).groups(1)[0]
+			week = re.search(""" <div class="lunchMenyHeader">Lunchmeny vecka (..)</div>""",data).groups(0)[0]
+			dishName = re.findall("""<div class="title">(.*)</div>""",dagdish)
+			dishPrice = re.findall("""<div class="price">(.*)</div>""",dagdish)
+			for i in range(len(dishName)):
+				options += "%s %s, " % (dishName[i],dishPrice[i])
 			f.close()
 		except:
 			return "Error"
 
-		week = ".."
-
-		m = re.search('Veckans lunch (.+?)<', data)
-		if m:
-			week = m.group(1)
-
-		m = re.search('%s :</span>\s*<br />(.*?)</p>' % day.lower(), data.replace("\n",""))
-		if m:
-			options = m.group(1).replace("<br />", " || ").replace("    - ", "")
-			options = re.sub('<.+?>', '', options)
-		else:
-			options = "Error"
-
 		return "Uni:k: %s %s: %s" % (day, week, options)
 
+	def getLunchRawDeli(self, day):
+		week = ".."
+		options = ""
+		try:
+			f = urllib2.urlopen("http://www.hittalunchen.se/Access/Meny.aspx?companyID=82&amp;css=unik&amp;showHeader=1")
+			data = f.read()
+			dagdish =  re.search("""<div class="day"><span class="name">"""+day+"""</span>(.*?)<div class="always">""",data,re.DOTALL | re.MULTILINE).groups(1)[0]
+			week = re.search(""" <div class="lunchMenyHeader">Lunchmeny vecka (..)</div>""",data).groups(0)[0]
+			dishName = re.findall("""<div class="title">(.*)</div>""",dagdish)
+			dishDesc = re.findall("""<div class="description">(.*)</div>""",dagdish)
+			dishPrice = re.findall("""<div class="price">(.*)</div>""",dagdish)
+			for i in range(len(dishName)):
+				options += "\n-%s- %s %s" % (dishName[i],"\n"+dishDesc[i].replace("<br /> ","\n").replace(" <br />","\n").replace("<br />","\n"),dishPrice[i])
+			f.close()
+		except:
+			return "Error"
+		return "RAW DELI: %s v%s: %s" % (day, week, options)
 	def getLunchAurorum(self, day):
 		try:
 			f = urllib2.urlopen("http://www.restaurangaurorum.se/page_lunch_utskr.aspx")
@@ -124,37 +144,24 @@ class Lunch(PluginBase):
 		return "Aurorum: %s v.%s: %s" % (day, week, options)
 
 	def getLunchCentrum(self, day):
+		week = ".."
+		day = day.split(" ")[0] 
 		try:
 			f = urllib2.urlopen("http://www.amica.se/centrumrestaurangen")
 			data = f.read()
-			data = data.replace("&amp;", "&")
-			data = data.replace("\r", "")
-			data = data.replace("\n", "")
+			r = re.search("""<h2>Centrumrestaurangen LTU<br /></h2>(.*?)<p>&nbsp; &nbsp; <strong></strong></p>""",data,re.DOTALL | re.MULTILINE)
+			rdata = r.groups(1)[0].replace("&aring;","å").replace("&amp;","&").replace("&auml;","ä").replace("&ouml;","ö")
+
+			if day != "Fredag": rday = re.findall("""<h2>.*?"""+day+""".*?</h2>(.*?)<h2>""",rdata,re.DOTALL | re.MULTILINE)
+			else: rday = re.findall("""<h2>.*?Fredag.*?</h2>(.*)""",rdata,re.DOTALL | re.MULTILINE)
+
+			options = rday[0].replace("\r\n<p>","\n").replace("&nbsp;"," ").replace("&egrave;","é").replace("&eacute;","é").replace("<strong>","").replace("</strong>","").replace("</p>","").replace("\n \n","").replace("&ldquo;","\"").replace("&rdquo;","\"").replace("\n  ","\n").replace("\r\n","")
+			week = re.findall("""Matsedel vecka (..)""",rdata)[0].replace("\r\n","")
 			f.close()
 		except:
 			return "Error"
 
-		m = re.search('%s(.+?)<h2' % (day.replace("å","&aring;").replace("ö", "&ouml;")), data)
-		if not m:
-			return "Centrum: Error"
-
-		options = m.group(1).replace("<strong>", "").replace("</strong>","")
-		options = re.sub('</p><p>&nbsp;(.+?)<', "<", options)
-		options = options.replace("</p><p>", " || ").replace("&nbsp;", " ").replace("  ", " ").replace("&ouml;", "ö").replace("&auml;", "ä").replace("&aring;", "å").replace("&eacute;", "é")
-		options = re.sub('<.+?>', '', options)
-
-		options = options.split(" || ")
-
-		output = []
-		output.append("Centrum: %s: " % (day))
-		print output
-		for option in options:
-			if len(output[-1]) + len(option) > 440:
-				output.append("Centrum: %s: " % (day))
-
-			output[-1] = output[-1] + " " + option
-
-		return output
+		return "Centrumresturangen: %s v.%s: %s" % (day, week, "\n"+options)
 
 	def getLunchTeknikensHus(self, day):
 		return "Teknikens Hus: Not yet implemented"

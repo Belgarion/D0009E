@@ -15,6 +15,8 @@ class Talking(PluginBase):
 	def __init__(self, bot):
 		bot.registerCommand("!talk", self.talk)
 		bot.registerCommand("!rykte", self.rykte)
+		bot.registerCommand("!segway", self.segway)
+		bot.registerCommand("!segue", self.segue)
 		bot.registerQueryCommand("!listsentences", self.listSentences)
 		bot.registerQueryCommand("!addsentence", self.addSentence)
 		bot.registerQueryCommand("!delsentence", self.delSentence)
@@ -27,6 +29,8 @@ class Talking(PluginBase):
 		self.prepositioner = []
 		self.namn = []
 		self.definitions = []
+		self.land = []
+		self.yrke = []
 
 		self.loadWords()
 		self.loadDict("dict/sagonamn", self.namn)
@@ -86,6 +90,17 @@ class Talking(PluginBase):
 
 		f.close()
 
+		f = codecs.open("dict/land.txt",'r','utf-8')
+		landList = f.read().split(",")
+		for l in landList:
+			self.land.append(l)
+		f.close()
+
+		f = codecs.open("dict/yrke.txt",'r','utf-8')
+		yrkeList = f.read().split(",")
+		for l in yrkeList:
+			self.yrke.append(l)
+		f.close()
 	def loadDict(self, filename, wordlist):
 		f = codecs.open(filename, 'r', 'utf-8')
 		for line in f.readlines():
@@ -128,6 +143,8 @@ class Talking(PluginBase):
 				"%%VERB3%%":(self.verb, 3),
 				"%%VERB4%%":(self.verb, 4),
 				"%%DEFINITION1%%": (self.definitions, 0),
+				"%%LAND%%": (self.land, -1),
+				"%%YRKE%%": (self.yrke, -1),
 				"%%NICK%%": (bot.channels[channel.upper()].names, -1)}
 
 		for sub in substitutes:
@@ -153,6 +170,18 @@ class Talking(PluginBase):
 		bot.sendMessage("PRIVMSG", channel, self.subSentence(bot, channel,
 			unicode("Det går ett rykte i dataettan att %s har %%%%VERB3%%%%." % (nick), 'utf-8')))
 
+	def segway(self, bot, channel, params):
+		if random.randint(0,1) == 0: amne = random.choice(self.substantiv)[0].encode("utf8")
+		else:	amne = random.choice(self.land).encode("utf8") 
+		outstr = "         __\n~~      /\n\n~~     / Nytt Ämne: "+amne+"\n~~ ___/\n   (o)"
+		outlst = outstr.split("\n")
+		for o in outlst:
+			bot.sendMessage("PRIVMSG", channel, o)
+	def segue(self, bot, channel, params):
+		if random.randint(0,1) == 0: o = random.choice(self.substantiv)[0].encode("utf8")
+		else:	o = random.choice(self.land).encode("utf8")
+		lst  = ["Grabbar, vad tycker ni om "+o+"?","Så fruktansvärt tråkigt ämne, kan ni inte prata om "+o+" istället?","Så... angående "+o+"?"]
+		bot.sendMessage("PRIVMSG", channel, random.choice(lst))
 	def listSentences(self, bot, channel, params):
 		for i, sentence in enumerate(self.sentences):
 			bot.sendMessage("PRIVMSG", channel, str(i) + ": " + sentence.encode("utf8"))
