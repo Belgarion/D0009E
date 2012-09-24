@@ -166,7 +166,7 @@ class Bot:
 			message = [message]
 
 		for i,m in enumerate(message):
-			if i%5: time.sleep(2)
+			if i%5 == 0: time.sleep(2)
 
 			m = str(m)
 			m = m.replace("\r", "")
