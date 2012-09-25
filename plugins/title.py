@@ -45,7 +45,7 @@ class Title(PluginBase):
 		GETURL = APIURL + "/v3/shorten?"
 		GETURL += apiKey + "&"
 		GETURL += "longURL=" + url
-		
+
 		try:
 			f = urllib2.urlopen(GETURL)
 			shortUrl = re.findall("\"url\": \"(.*?)\"",f.read())[0].replace("\/","/")
