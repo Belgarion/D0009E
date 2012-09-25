@@ -142,23 +142,49 @@ class Lunch(PluginBase):
 	def getLunchCentrum(self, day):
 		week = ".."
 		day = day.split(" ")[0] 
-		try:
+		try: 
 			f = urllib2.urlopen("http://www.amica.se/centrumrestaurangen")
 			data = f.read()
-			r = re.search("""<h2>Centrumrestaurangen LTU<br /></h2>(.*?)<p>&nbsp; &nbsp; <strong></strong></p>""",data,re.DOTALL | re.MULTILINE)
-			rdata = r.groups(1)[0].replace("&aring;","å").replace("&amp;","&").replace("&auml;","ä").replace("&ouml;","ö")
+			meny = re.search("""<h2>Centrumrestaurangen LTU<br /></h2>(.*?)<div class="boxFoot">""",data,re.DOTALL | re.MULTILINE)
+			menyData = meny.groups(1)[0].replace("&aring;","å").replace("&amp;","&").replace("&auml;","ä").replace("&ouml;","ö")
 
-			if day != "Fredag": rday = re.findall("""<h2>.*?"""+day+""".*?</h2>(.*?)<h2>""",rdata,re.DOTALL | re.MULTILINE)
-			else: rday = re.findall("""<h2>.*?Fredag.*?</h2>(.*)""",rdata,re.DOTALL | re.MULTILINE)
+			if day != "Fredag": menyDay = re.findall("""<h2>.*?"""+day+""".*?</h2>(.*?)<h2>""",menyData,re.DOTALL | re.MULTILINE)
+			else: menyDay = re.findall("""<h2>.*?Fredag.*?</h2>(.*)""",menyData,re.DOTALL | re.MULTILINE)
 
-			options = rday[0].replace("\r\n<p>","\n").replace("&nbsp;"," ").replace("&egrave;","é").replace("&eacute;","é").replace("<strong>","").replace("</strong>","").replace("</p>","").replace("\n \n","").replace("&ldquo;","\"").replace("&rdquo;","\"").replace("\n  ","\n").replace("\r\n","")
-			week = re.findall("""Matsedel vecka (..)""",rdata)[0].replace("\r\n","")
+			dishes = menyDay[0]
+			dishes = dishes.replace("\r\n<p>","\n")
+			dishes = dishes.replace("&nbsp;"," ")
+			dishes = dishes.replace("&egrave;","é")
+			dishes = dishes.replace("&eacute;","é")
+			dishes = dishes.replace("<strong>","")
+			dishes = dishes.replace("</strong>","")
+			dishes = dishes.replace("</p>","")
+			dishes = dishes.replace("\n \n","")
+			dishes = dishes.replace("&ldquo;","\"")
+			dishes = dishes.replace("&rdquo;","\"")
+			dishes = dishes.replace("\n  ","\n")
+			dishes = dishes.replace("\r\n","")
+
+			week = re.findall("""Matsedel vecka (..)""",menyData)[0].replace("\r\n","")
+
+			dishesParsed = re.findall("""([ a-zA-ZåäöÅÄÖ]*?:.*?:-)""",dishes,re.DOTALL | re.MULTILINE)
+			out = ""
+			last = 0
+			for n,p in enumerate(dishesParsed):
+				i = p.replace("\n","").replace("\t","").replace("   "," ").replace("   "," ").replace("  "," ")
+				if len(i)+last > 90:
+					i += "\n"
+					last = 0
+				else:
+					last += len(i)
+					if n != len(dishesParsed)-1: 
+						i += " || "
+				out += i
 			f.close()
 		except:
 			return "Error"
 
-		return ["Massiv output, klaga på yugge",
-			"Centrumresturangen: %s v.%s:" % (day, week)] + options.split("\n")
+		return ["[Centrumresturangen: %s v.%s] " % (day, week)] + out.split("\n")
 
 	def getLunchTeknikensHus(self, day):
 		return "Teknikens Hus: Not yet implemented"
