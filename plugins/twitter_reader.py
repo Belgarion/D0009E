@@ -9,9 +9,14 @@ class TwitterReader(PluginBase):
 	def __init__(self, bot):
 		pass
 
+	def handleNewConfig(self):
+		self.lastTwitterCheck = int(self.getConfig("lastTwitterCheck", '0'))
+		self.lastTwitterStatusTime = int(self.getConfig("lastTwitterStatusTime", '0'))
+
 	def on_tick(self, bot):
-		if time.time() - bot.lastTwitterCheck > 300:
-			bot.lastTwitterCheck = time.time()
+		if time.time() - self.lastTwitterCheck > 300:
+			self.lastTwitterCheck = time.time()
+			self.updateConfig("lastTwitterCheck", str(self.lastTwitterCheck))
 			try:
 				self.handleTwitter(bot, "#datasektionen", [])
 			except:
@@ -23,9 +28,10 @@ class TwitterReader(PluginBase):
 		if len(statuses) == 0:
 			return
 
-		msgs = ["@baldos: " + s.text for s in statuses if s.created_at_in_seconds > bot.lastTwitterStatusTime][:2]
+		msgs = ["@baldos: " + s.text for s in statuses if s.created_at_in_seconds > self.lastTwitterStatusTime][:2]
 		msgs.reverse()
-		bot.lastTwitterStatusTime = statuses[0].created_at_in_seconds
+		self.lastTwitterStatusTime = statuses[0].created_at_in_seconds
+		self.updateConfig("lastTwitterStatusTime", str(self.lastTwitterStatusTime))
 
 		if len(msgs) > 0:
 			bot.sendMessage("PRIVMSG", channel, msgs)

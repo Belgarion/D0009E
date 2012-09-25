@@ -4,11 +4,15 @@ server = irc.server
 port = 6667
 nick = thebot
 
-[misc]
-lastforecast = 0
-lasttwittercheck = 0
-lasttwitterstatustime = 0
-
 [users]
 admins = admin1:password1 admin2:password2
 
+[plugins.forecast]
+lastforecast = 0
+
+[plugins.twitter]
+lasttwittercheck = 0
+lasttwitterstatustime = 0
+
+[plugins.title]
+apikey = login=username&apiKey=apikey

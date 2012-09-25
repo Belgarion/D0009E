@@ -37,6 +37,9 @@ class Bot:
 		self.loadPlugins()
 
 	def loadPlugins(self):
+		if "plugins" in dir(self):
+			self.saveSettings()
+
 		self.help = {}
 		self.commands = {}
 		self.queryCommands = {}
@@ -49,7 +52,14 @@ class Bot:
 					reload(plugin)
 					if "mainclass" in dir(plugin):
 						print "Loading", i
-						self.plugins.append(plugin.mainclass(self))
+						obj = plugin.mainclass(self)
+						if self.config.has_section(plugin.__name__):
+							conflist = self.config.items(plugin.__name__)
+							conf = {}
+							for c in conflist:
+								conf[c[0]] = c[1]
+							obj.setConfig(conf)
+						self.plugins.append(obj)
 				except:
 					traceback.print_exc()
 		except:
@@ -67,16 +77,14 @@ class Bot:
 		admins = self.config.get('users', 'admins')
 		self.users = [tuple(i.split(":")) for i in admins.split()]
 
-		self.lastForecast = self.config.getfloat('misc', 'lastForecast')
-		self.lastTwitterStatusTime = self.config.getfloat('misc', 'lastTwitterStatusTime')
-		self.lastTwitterCheck = self.config.getfloat('misc', 'lastTwitterCheck')
-
 	def saveSettings(self):
 		self.lastSaveSettings = time.time()
+		for plugin in self.plugins:
+			conf = plugin.getConfigDict()
+			for key in conf.keys():
+				self.config.set(plugin.__module__, key, conf[key])
+
 		self.config.set('connection', 'channels', " ".join(self.chans))
-		self.config.set('misc', 'lastForecast', str(self.lastForecast))
-		self.config.set('misc', 'lastTwitterCheck', str(self.lastTwitterCheck))
-		self.config.set('misc', 'lastTwitterStatusTime', str(self.lastTwitterStatusTime))
 
 		admins = " ".join([":".join(i) for i in self.users])
 		self.config.set('users', 'admins', admins)

@@ -11,15 +11,14 @@ class Title(PluginBase):
 		bot.registerCommand("!link", self.handleTitle)
 		bot.addHelp("link", "Usage: !link <url>")
 
+	def handleNewConfig(self):
+		self.apiKey = self.getConfig("apikey")
+
 	def handleTitle(self, bot, channel, params):
 		bot.sendMessage("PRIVMSG", channel, self.getTitle("%20".join(params)))
+
 	def shortenURL(self, url):
 		APIURL = "https://api-ssl.bitly.com"
-
-		#Get APIKEY
-		f = open("api.key","r")
-		apiKey = f.read()
-		f.close()
 
 		#Encode url
 		url = url.replace("!","%21")
@@ -43,7 +42,7 @@ class Title(PluginBase):
 
 		#Create String
 		GETURL = APIURL + "/v3/shorten?"
-		GETURL += apiKey + "&"
+		GETURL += self.apiKey + "&"
 		GETURL += "longURL=" + url
 
 		try:
