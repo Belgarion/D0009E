@@ -54,7 +54,8 @@ class Title(PluginBase):
 
 	def getTitle(self, url):
 		try:
-			shortUrl = self.shortenURL(url)
+			if url[0:7] != "http://" and url[0:8] != "https://" : url = "http://" + url 
+			shortUrl = self.shortenURL(url)[7:]
 
 			headers = { 'User-Agent' : 'Mozilla/5.0' }
 			req = urllib2.Request(url,None,headers)
@@ -67,6 +68,6 @@ class Title(PluginBase):
 		m = re.search("<title>\n?(.*)\n?</title>", data)
 		if m:
 			return "[ %s ] Title: %s" % (shortUrl,m.group(1))
-		return "Title not found"
+		return "[ %s ] Title: Not Found" % (shortUrl)
 
 mainclass = Title
