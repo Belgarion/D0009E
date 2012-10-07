@@ -10,8 +10,8 @@ class TwitterReader(PluginBase):
 		pass
 
 	def handleNewConfig(self):
-		self.lastTwitterCheck = int(self.getConfig("lastTwitterCheck", '0'))
-		self.lastTwitterStatusTime = int(self.getConfig("lastTwitterStatusTime", '0'))
+		self.lastTwitterCheck = float(self.getConfig("lastTwitterCheck", '0'))
+		self.lastTwitterStatusTime = float(self.getConfig("lastTwitterStatusTime", '0'))
 
 	def on_tick(self, bot):
 		if time.time() - self.lastTwitterCheck > 300:

@@ -60,14 +60,16 @@ class Title(PluginBase):
 			headers = { 'User-Agent' : 'Mozilla/5.0' }
 			req = urllib2.Request(url,None,headers)
 			f = urllib2.urlopen(req)
-			data = f.read()
+			data = f.read(10240) # title should be in first 10kB
 			f.close()
 		except urllib2.HTTPError, e:
 			return "Error: %s" % e
 
-		m = re.search("<title>\n?(.*)\n?</title>", data)
+		m = re.search("<title>(.*)</title>", data, re.DOTALL)
 		if m:
-			return "[ %s ] Title: %s" % (shortUrl,m.group(1))
+			title = m.group(1)
+			title = title.replace("\n", " ")
+			return "[ %s ] Title: %s" % (shortUrl,title)
 		return "[ %s ] Title: Not Found" % (shortUrl)
 
 mainclass = Title
