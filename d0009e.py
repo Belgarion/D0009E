@@ -330,7 +330,7 @@ class RecvThread(threading.Thread):
 
 	def run(self):
 		buffer = ""
-		self.sock.settimeout(30)
+		socket.setdefaulttimeout(30)
 		endpoint_notconnected_count = 0
 		while not self.quit:
 			try:
