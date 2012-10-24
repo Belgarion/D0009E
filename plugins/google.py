@@ -27,10 +27,13 @@ class Google(PluginBase):
 		data = file.read(1024*1024)
 		file.close()
 
-		m = re.search('<h3 class="r"><a href="(.*?)".*?>(.*?)<\/a>', data)
+		# What you see in your browser isn't what google sends over the socket.
+		# Here's a regex that works as of 2012-10-24
+		m = re.search('<a href="\/url\?q=(.*?)&amp;.*?>(.*?)<\/a>', data)
 		if m:
 			title = re.sub('<.+?>', '', m.group(2))
-			bot.sendMessage("PRIVMSG", channel, "%s [%s]" % (title, m.group(1)))
+			url = urllib.unquote(m.group(1));
+			bot.sendMessage("PRIVMSG", channel, "%s [ %s ]" % (title, url))
 		else:
 			bot.sendMessage("PRIVMSG", channel, url)
 
