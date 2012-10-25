@@ -42,14 +42,7 @@ class Lunch(PluginBase):
 
 	def handleLunch(self, bot, channel, params):
 		msg = self.getLunch(" ".join(params))
-
-		# A single message
-		if (isinstance(msg, basestring)):
-			bot.sendMessage("PRIVMSG", channel, msg)
-		# A list of messages
-		else:
-			for m in msg:
-				bot.sendMessage("PRIVMSG", channel, m)
+		bot.sendMessage("PRIVMSG", channel, msg)
 
 	def getLunch(self, place = ""):
 		tm = time.localtime()
