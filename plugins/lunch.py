@@ -10,9 +10,33 @@ class Lunch(PluginBase):
 		bot.registerCommand("!lunch", self.handleLunch)
 		bot.addHelp("lunch", "!lunch resturang (stuk,unik,centrum,husmans,aurorum,rawdeli,dazhong)")
 
+	def cleanHTML(self, text):
+		# Finicky characters
+		text = text.replace("&#233;", "é");
+		text = text.replace("&#201;", "é");
+		text = text.replace("&#229;", "å");
+		text = text.replace("&#197;", "Å");
+		text = text.replace("&#228;", "ä");
+		text = text.replace("&#196;", "Ä");
+		text = text.replace("&#246;", "ö");
+		text = text.replace("&#214;", "Ö");
+
+		# Markup
+		text = re.sub("<br ?/?>", " ", text, re.IGNORECASE);
+
+		return text
+
+
 	def handleLunch(self, bot, channel, params):
 		msg = self.getLunch(" ".join(params))
-		bot.sendMessage("PRIVMSG", channel, msg)
+
+		# A single message
+		if (isinstance(msg, basestring)):
+			bot.sendMessage("PRIVMSG", channel, msg)
+		# A list of messages
+		else:
+			for m in msg:
+				bot.sendMessage("PRIVMSG", channel, m)
 
 	def getLunch(self, place = ""):
 		tm = time.localtime()
@@ -35,7 +59,7 @@ class Lunch(PluginBase):
 		elif place.lower() == "centrum":
 			return self.getLunchCentrum(dateString)
 		elif place.lower() == "teknikens hus" or place.lower() == "husmans":
-			return self.getLunchTeknikensHus(dateString)
+			return self.getLunchTeknikensHus(day)
 		elif place.lower() == "aurorum":
 			return self.getLunchAurorum(day)
 		elif place.lower() == "rawdeli":
@@ -187,7 +211,6 @@ class Lunch(PluginBase):
 		return ["[Centrumresturangen: %s v.%s] " % (day, week)] + out.split("\n")
 
 	def getLunchTeknikensHus(self, day):
-		return "Teknikens Hus: Not yet implemented"
 		try:
 			f = urllib2.urlopen("http://www.husmans.se/lunchmenyn/")
 			data = f.read()
@@ -200,18 +223,55 @@ class Lunch(PluginBase):
 
 		week = ".."
 
-		m = re.search('Veckans lunch (.+?)<', data)
+		m = re.search('<span class=PublicBreadcrumItem>Vecka (\d+)</span>', data)
 		if m:
 			week = m.group(1)
 
-		m = re.search('%s :</span> <br />(.*?)</p>' % day.lower(), data.replace("\n",""))
-		if m:
-			options = m.group(1).replace("<br />", " || ").replace("    - ", "")
-			options = re.sub('<.+?>', '', options)
+		daymap = {"måndag"  : "monday",
+							"tisdag"  : "tuesday",
+							"onsdag"  : "wednesday",
+							"torsdag" : "thursday",
+							"fredag"  : "friday"}
+		if day.lower() in daymap.keys():
+			engday = daymap[day.lower()]
 		else:
-			options = "Error"
+			return "Teknikens Hus: Stängt."
 
-		return "Teknikens Hus: %s %s: %s" % (day, week, options)
+
+		maincourse = "ERROR"
+		pasta = "ERROR"
+		salad = "ERROR"
+		veggie = "ERROR"
+
+		m = re.search('<span id="ctl00_MainContent_m_%s">(.*?)</span>' % engday, data.replace("\n",""))
+		if m:
+			maincourse = m.group(1)
+
+		m = re.search('<span id="ctl00_MainContent_m_%s">(.*?)</span>' % "extra1", data.replace("\n",""))
+		if m:
+			pasta = m.group(1)
+
+		m = re.search('<span id="ctl00_MainContent_m_%s">(.*?)</span>' % "extra2", data.replace("\n",""))
+		if m:
+			salad = m.group(1)
+
+		m = re.search('<span id="ctl00_MainContent_m_%s">(.*?)</span>' % "extra3", data.replace("\n",""))
+		if m:
+			veggie = m.group(1)
+
+
+		maincourse = self.cleanHTML(maincourse)
+		pasta = self.cleanHTML(pasta)
+		salad = self.cleanHTML(salad)
+		veggie = self.cleanHTML(veggie)
+
+		return [
+							"Teknikens Hus: %s vecka %s:" % (day, week),
+							"Huvudrätt: %s" % maincourse,
+							"Pasta:  %s" % pasta,
+							"Sallad: %s" % salad,
+							"Veg:    %s" % veggie
+					 ]
 
 
 	def getLunchGastis(self, day):
