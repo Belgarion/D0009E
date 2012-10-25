@@ -13,6 +13,6 @@ class Help(PluginBase):
 			else:
 				bot.sendMessage("PRIVMSG", channel, "No help for: %s" % params[0])
 		else:
-			bot.sendMessage("PRIVMSG", channel, ", ".join(bot.help.keys()))
+			bot.sendMessage("PRIVMSG", channel, ", ".join(sorted(bot.help.keys())))
 
 mainclass = Help
