@@ -21,8 +21,21 @@ class Lunch(PluginBase):
 		text = text.replace("&#246;", "ö");
 		text = text.replace("&#214;", "Ö");
 
+		# Other finicky characters
+		text = text.replace("&nbsp;"," ")
+		text = text.replace("&egrave;","é")
+		text = text.replace("&eacute;","é")
+		text = text.replace("\n \n","")
+		text = text.replace("&ldquo;","\"")
+		text = text.replace("&rdquo;","\"")
+		text = text.replace("\n  ","\n")
+		text = text.replace("\r\n","")
+
+
 		# Markup
 		text = re.sub("<br ?/?>", " ", text, re.IGNORECASE);
+		text = re.sub("</?strong>","", text, re.IGNORECASE)
+		text = re.sub("</?p>","", text, re.IGNORECASE)
 
 		return text
 
@@ -177,17 +190,7 @@ class Lunch(PluginBase):
 
 			dishes = menyDay[0]
 			dishes = dishes.replace("\r\n<p>","\n")
-			dishes = dishes.replace("&nbsp;"," ")
-			dishes = dishes.replace("&egrave;","é")
-			dishes = dishes.replace("&eacute;","é")
-			dishes = dishes.replace("<strong>","")
-			dishes = dishes.replace("</strong>","")
-			dishes = dishes.replace("</p>","")
-			dishes = dishes.replace("\n \n","")
-			dishes = dishes.replace("&ldquo;","\"")
-			dishes = dishes.replace("&rdquo;","\"")
-			dishes = dishes.replace("\n  ","\n")
-			dishes = dishes.replace("\r\n","")
+			dishes = self.cleanHTML(dishes)
 
 			week = re.findall("""Matsedel vecka (..)""",menyData)[0].replace("\r\n","")
 
