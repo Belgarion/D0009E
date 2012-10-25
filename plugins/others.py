@@ -10,10 +10,11 @@ class Others(PluginBase):
 		bot.registerCommand("!ping", self.handlePing)
 		bot.registerCommand("!time", self.handleTime)
 		bot.registerCommand("!zzz", self.handleZZZ)
-		bot.addHelp("bug", "Usage: !bug")
+		bot.registerCommand("!zzz",  self.handleZZZ)
 		bot.addHelp("echo", "Usage: !echo <arguments>")
 		bot.addHelp("time", "Prints current time")
-		bot.addHelp("!ping", "Pong")
+		bot.addHelp("ping", "Pong")
+		bot.addHelp("bug", "Usage: !bug")
 
 	def handleBug(self, bot, channel, params):
 		bot.sendMessage("PRIVMSG", channel, "https://github.com/Belgarion/D0009E/issues")

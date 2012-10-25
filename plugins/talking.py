@@ -172,12 +172,12 @@ class Talking(PluginBase):
 
 	def segway(self, bot, channel, params):
 		if random.randint(0,100) != 0: amne = random.choice(self.substantiv)[0].encode("utf8")
-		else:	amne = random.choice(self.land).encode("utf8") 
+		else:	amne = random.choice(self.land).encode("utf8")
 		outstr = "        _\n~~      /\n\n~~     / Nytt Ämne: "+amne+"\n~~ ___/\n   (o)"
 		outlst = outstr.split("\n")
 		bot.sendMessage("PRIVMSG", channel, outlst)
 	def segue(self, bot, channel, params):
-		if random.randint(0,100) != 0: o = random.choice(self.substantiv)[0].encode("utf8") 
+		if random.randint(0,100) != 0: o = random.choice(self.substantiv)[0].encode("utf8")
 		else:	o = random.choice(self.land).encode("utf8") # 1% länder, bygger på statestik.
 		lst  = ["Grabbar, vad tycker ni om "+o+"?","Så fruktansvärt tråkigt ämne, kan ni inte prata om "+o+" istället?","Så... angående "+o+"?"]
 		bot.sendMessage("PRIVMSG", channel, random.choice(lst))
