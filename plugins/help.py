@@ -4,7 +4,7 @@ from pluginbase import PluginBase
 class Help(PluginBase):
 	def __init__(self, bot):
 		bot.registerCommand("!help", self.handleHelp)
-		bot.addHelp("help", "Usasge: !help [command]")
+		bot.addHelp("help", "Usage: !help [command]")
 
 	def handleHelp(self, bot, channel, params):
 		if len(params) >= 1:

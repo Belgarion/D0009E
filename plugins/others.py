@@ -8,10 +8,10 @@ class Others(PluginBase):
 		bot.registerCommand("!echo", self.handleEcho)
 		bot.registerCommand("!ping", self.handlePing)
 		bot.registerCommand("!time", self.handleTime)
-		bot.registerCommand("!zzz", self.handleZZZ)
+		bot.registerCommand("!zzz",  self.handleZZZ)
 		bot.addHelp("echo", "Usage: !echo <arguments>")
 		bot.addHelp("time", "Prints current time")
-		bot.addHelp("!ping", "Pong")
+		bot.addHelp("ping", "Pong")
 
 	def handleEcho(self, bot, channel, params):
 		bot.sendMessage("PRIVMSG", channel, " ".join(params))

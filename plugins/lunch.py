@@ -141,8 +141,8 @@ class Lunch(PluginBase):
 
 	def getLunchCentrum(self, day):
 		week = ".."
-		day = day.split(" ")[0] 
-		try: 
+		day = day.split(" ")[0]
+		try:
 			f = urllib2.urlopen("http://www.amica.se/centrumrestaurangen")
 			data = f.read()
 			meny = re.search("""<h2>Centrumrestaurangen LTU<br /></h2>(.*?)<div class="boxFoot">""",data,re.DOTALL | re.MULTILINE)
@@ -177,7 +177,7 @@ class Lunch(PluginBase):
 					last = 0
 				else:
 					last += len(i)
-					if n != len(dishesParsed)-1: 
+					if n != len(dishesParsed)-1:
 						i += " || "
 				out += i
 			f.close()

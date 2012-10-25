@@ -54,7 +54,7 @@ class Title(PluginBase):
 
 	def getTitle(self, url):
 		try:
-			if url[0:7] != "http://" and url[0:8] != "https://" : url = "http://" + url 
+			if url[0:7] != "http://" and url[0:8] != "https://" : url = "http://" + url
 			shortUrl = self.shortenURL(url)[7:]
 
 			headers = { 'User-Agent' : 'Mozilla/5.0' }
