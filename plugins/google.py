@@ -19,7 +19,7 @@ class Google(PluginBase):
 		if "!link" in bot.commands:
 			bot.commands["!link"](bot, channel, [url])
 		else:
-			bot.sendMessage("PRIVMSG", channel, "%s [ %s ]" % (title, url))
+			bot.sendMessage("PRIVMSG", channel, "[ %s ] Title: %s" % (url, title))
 
 	def handleGoogle(self, bot, channel, params):
 		url = "http://www.google.se/search?q=%s&ie=utf-8&oe=utf-8&rls=en" % \
