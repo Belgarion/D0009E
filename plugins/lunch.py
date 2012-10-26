@@ -104,24 +104,34 @@ class Lunch(PluginBase):
 		return buf
 	def getLunchDazhong(self):
 		return "Dazhong: Vi serverar åtta varmrätter, salladsbuffé och nybakat bröd varje dag. Kaffe med Friterade bananer och glass till efterrätt. 75:-"
-	def getLunchUnik(self, day):
+
+	def getHittaLunchen(self, companyID, day):
+		print "Checking day " + day
 		week = ".."
 		options = ""
 		try:
-			f = urllib2.urlopen("http://www.hittalunchen.se/Access/Meny.aspx?companyID=66&amp;css=unik&amp;showHeader=1")
+			f = urllib2.urlopen("http://www.hittalunchen.se/Access/Meny.aspx?companyID=%d&showHeader=1" % (companyID))
 			data = f.read()
+			week = re.search("""<div class="lunchMenyHeader">Lunchmeny vecka (\d+)</div>""",data).groups(0)[0]
 			dagdish =  re.search("""<div class="day"><span class="name">"""+day+"""</span>(.*?)<div class="always">""",data,re.DOTALL | re.MULTILINE).groups(1)[0]
-			week = re.search(""" <div class="lunchMenyHeader">Lunchmeny vecka (..)</div>""",data).groups(0)[0]
 			dishName = re.findall("""<div class="title">(.*)</div>""",dagdish)
 			dishPrice = re.findall("""<div class="price">(.*)</div>""",dagdish)
 			for i in range(len(dishName)):
 				options += "%s %s, " % (dishName[i],dishPrice[i])
 			f.close()
-		except:
-			return "Error"
+		except Exception,e:
+			# This happens when the day isn't on the menu, i.e. if you try !lunch at 14:00 on a friday.
+			return "Stängt."
+		return "%s v%s: %s" % (day, week, options)
 
-		return "Uni:k: %s %s: %s" % (day, week, options)
 
+	def getLunchUnik(self, day):
+		return "Uni:k " + self.getHittaLunchen(66,day)
+
+	def getLunchAurorum(self, day):
+		return "Aurorum " + self.getHittaLunchen(5, day)
+
+	# TODO: Fold this into getHittaLunchen (these dudes use the <description> field for 95% of their info.)
 	def getLunchRawDeli(self, day):
 		week = ".."
 		options = ""
@@ -139,35 +149,6 @@ class Lunch(PluginBase):
 		except:
 			return "Error"
 		return ["Trasigt mycket output, klaga på yugge", "RAW DELI: %s v%s:" % (day, week)] + options.split("\n")
-
-	def getLunchAurorum(self, day):
-		try:
-			f = urllib2.urlopen("http://www.restaurangaurorum.se/page_lunch_utskr.aspx")
-			data = f.read()
-			data = data.replace("&nbsp;", " ")
-			data = data.replace("&amp;", "&")
-			data = data.replace("\r", "")
-			f.close()
-		except:
-			return "Error"
-
-		week = ".."
-
-		m = re.search('Matsedel vecka (.+?) ', data)
-		if m:
-			week = m.group(1)
-
-		m = re.search('%s</strong>(.*?)<strong>' % (day.replace("å","&aring;").replace("ö", "&ouml;")), data.replace("\n",""))
-		if m:
-			options = m.group(1).replace("<br />", " || ").replace("&ouml;", "ö").replace("&auml;", "ä").replace("&aring;", "å").replace("&eacute;", "é")
-			print  re.search(r'<em>\s*<p>\s*(.+?)\s*</p>\s*</em>', options).groups()
-			options = re.sub(r'<em>\s*<p>\s*(.+?)\s*</p>\s*</em>', r'|| \1:', options)
-			options = re.sub(r'<.+?>', '', options)
-			options = re.sub(r'\s+', ' ', options)
-		else:
-			options = "Error"
-
-		return "Aurorum: %s v.%s: %s" % (day, week, options)
 
 	def getLunchCentrum(self, day):
 		week = ".."
