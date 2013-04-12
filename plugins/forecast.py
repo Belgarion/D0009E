@@ -12,6 +12,7 @@ class Forecast(PluginBase):
 
 	def handleNewConfig(self):
 		self.lastForecast = float(self.getConfig("lastForecast", '0'))
+		self.channels = self.getConfig("channels", "").split()
 
 	def on_tick(self, bot):
 		hour = time.localtime().tm_hour
@@ -20,8 +21,8 @@ class Forecast(PluginBase):
 			self.lastForecast = time.time()
 			self.updateConfig("lastForecast", str(self.lastForecast))
 			try:
-				self.handleForecast(bot, "#ltudata2010", [])
-				self.handleForecast(bot, "#datasektionen", [])
+				for channel in self.channels:
+					self.handleForecast(bot, channel, [])
 			except:
 				traceback.print_exc()
 
