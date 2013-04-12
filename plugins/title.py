@@ -10,12 +10,19 @@ class Title(PluginBase):
 		bot.addHelp("title", "Usage: !title <url>")
 		bot.registerCommand("!link", self.handleTitle)
 		bot.addHelp("link", "Usage: !link <url>")
+		bot.registerContentCommand("https?://", self.handleContentUrl)
 
 	def handleNewConfig(self):
 		self.apiKey = self.getConfig("apikey")
 
 	def handleTitle(self, bot, channel, params):
 		bot.sendMessage("PRIVMSG", channel, self.getTitle("%20".join(params)))
+
+	def handleContentUrl(self, bot, channel, content):
+		m = re.search("(https?://[^\s]+)", content)
+		url = m.group(0)
+		print url
+		self.handleTitle(bot, channel, [url])
 
 	def shortenURL(self, url):
 		APIURL = "https://api-ssl.bitly.com"

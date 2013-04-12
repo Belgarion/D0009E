@@ -20,7 +20,6 @@ class TwitterReader(PluginBase):
 			self.updateConfig("lastTwitterCheck", str(self.lastTwitterCheck))
 			try:
 				for channel in self.twitterChannels:
-					print "Twitter sending to %s" % (channel)
 					self.handleTwitter(bot, channel, [])
 			except:
 				traceback.print_exc()

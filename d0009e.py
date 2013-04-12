@@ -30,6 +30,7 @@ class Bot:
 
 		self.joined = False
 		self.commands = {}
+		self.contentCommands = {}
 		self.queryCommands = {}
 		self.authorized_users = []
 		self.nextTalk = time.time() + 15
@@ -42,6 +43,7 @@ class Bot:
 
 		self.help = {}
 		self.commands = {}
+		self.contentCommands = {}
 		self.queryCommands = {}
 		self.plugins = []
 		try:
@@ -164,6 +166,9 @@ class Bot:
 
 	def registerCommand(self, command, func):
 		self.commands[command] = func
+
+	def registerContentCommand(self, regex, func):
+		self.contentCommands[regex] = func
 
 	def registerQueryCommand(self, command, func):
 		self.queryCommands[command] = func
@@ -319,6 +324,14 @@ class Bot:
 						if command in self.commands:
 							thread.start_new_thread(self.commands[command],
 								(self, target, args))
+						else:
+							for contentCmd in self.contentCommands:
+								if re.search(contentCmd, message):
+									thread.start_new_thread(
+											self.contentCommands[contentCmd],
+											(self, target, message))
+									break
+
 					except Exception, e:
 						traceback.print_exc()
 						self.sendMessage("PRIVMSG", target, "Error!!")
