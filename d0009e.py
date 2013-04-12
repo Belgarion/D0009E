@@ -59,6 +59,8 @@ class Bot:
 							for c in conflist:
 								conf[c[0]] = c[1]
 							obj.setConfig(conf)
+						else:
+							print "No config for plugin %s" % (plugin.__name__)
 						self.plugins.append(obj)
 				except:
 					traceback.print_exc()
@@ -210,6 +212,7 @@ class Bot:
 			if action.upper() == "001" and not self.joined:
 				for chan in self.chans:
 					self.sendMessage("JOIN", chan)
+				time.sleep(0.5)
 				self.joined = True
 			elif action.upper() == "PING":
 				self.sendMessage("PONG", target)

@@ -9,10 +9,12 @@ admins = admin1:password1 admin2:password2
 
 [plugins.forecast]
 lastforecast = 0
+channels = #channel1 #channel2
 
-[plugins.twitter]
+[plugins.twitter_reader]
 lasttwittercheck = 0
 lasttwitterstatustime = 0
+channels = #channel1 #channel2
 
 [plugins.title]
 apikey = login=username&apiKey=apikey
