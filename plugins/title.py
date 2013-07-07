@@ -72,7 +72,7 @@ class Title(PluginBase):
 		except urllib2.HTTPError, e:
 			return "Error: %s" % e
 
-		m = re.search("<title>(.*)</title>", data, re.DOTALL)
+		m = re.search("<title>(.*)</title>", data, re.DOTALL | re.IGNORECASE)
 		if m:
 			title = m.group(1)
 			title = title.replace("\n", " ")
