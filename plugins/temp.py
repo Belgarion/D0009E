@@ -59,7 +59,6 @@ class Temp(PluginBase):
 		return False
 
 	def temperaturnu(self, bot, channel, params):
-		return False
 		try:
 			conn = httplib.HTTPConnection("wap.temperatur.nu")
 			conn.request("GET", "/%s" % params[0].lower().replace("å","a").

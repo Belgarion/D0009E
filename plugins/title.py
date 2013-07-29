@@ -64,7 +64,7 @@ class Title(PluginBase):
 			if url[0:7] != "http://" and url[0:8] != "https://" : url = "http://" + url
 			shortUrl = self.shortenURL(url)[7:]
 
-			headers = { 'User-Agent' : 'Mozilla/5.0' }
+			headers = { 'User-Agent' : 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.8; rv:24.0) Gecko/20100101 Firefox/24.0' }
 			req = urllib2.Request(url,None,headers)
 			f = urllib2.urlopen(req)
 			data = f.read(10240) # title should be in first 10kB
