@@ -4,6 +4,7 @@
 # BOTNICK Lowe
 
 from pluginbase import PluginBase
+from hyphenator import Hyphenator
 
 import random
 import shutil
@@ -11,12 +12,15 @@ import time
 import codecs
 import traceback
 
+
 class Talking(PluginBase):
 	def __init__(self, bot):
+
 		bot.registerCommand("!talk", self.talk)
 		bot.registerCommand("!rykte", self.rykte)
 		bot.registerCommand("!segway", self.segway)
 		bot.registerCommand("!segue", self.segue)
+		bot.registerCommand("!haiku", self.haiku)
 		bot.registerQueryCommand("!listsentences", self.listSentences)
 		bot.registerQueryCommand("!addsentence", self.addSentence)
 		bot.registerQueryCommand("!delsentence", self.delSentence)
@@ -31,6 +35,7 @@ class Talking(PluginBase):
 		self.definitions = []
 		self.land = []
 		self.yrke = []
+		self.hyph = Hyphenator("dict/hyph_sv_SE.dic")
 
 		self.loadWords()
 		self.loadDict("dict/sagonamn", self.namn)
@@ -195,6 +200,34 @@ class Talking(PluginBase):
 		else:	o = random.choice(self.land).encode("utf8") # 1% länder, bygger på statestik.
 		lst  = ["Grabbar, vad tycker ni om "+o+"?","Så fruktansvärt tråkigt ämne, kan ni inte prata om "+o+" istället?","Så... angående "+o+"?"]
 		bot.sendMessage("PRIVMSG", channel, random.choice(lst))
+	def generateHaikuSentence(self, length, maxtries):
+		sentence = ""
+		while length > 0 or maxtries > 0:
+			wordtype = random.randint(0,99)
+			if wordtype >= 0 and wordtype <25:
+				o = random.choice(self.substantiv)[0].encode("utf8")
+			elif wordtype >= 25 and wordtype <50:
+				o = random.choice(self.verb)[0].encode("utf8")
+			elif wordtype >= 50 and wordtype <75:
+				o = random.choice(self.adjektiv)[0].encode("utf8")
+			elif wordtype >=75 and wordtype <99:
+				o = random.choice(self.prepositioner)[0].encode("utf8")
+			hyphword = self.hyph.inserted(o).encode("iso8859-1")
+			hyphlist = hyphword.split("-")
+			syllableCount = len(hyphlist)
+			if syllableCount <= length:
+				sentence+="".join(hyphlist) + " "
+				length-=syllableCount
+			maxtries-=1
+		return sentence
+	def haiku(self, bot, channel, params):
+		out = []
+		out.append("[Haiku]------------")
+		out.append(self.generateHaikuSentence(5,50))
+		out.append(self.generateHaikuSentence(7,50))
+		out.append(self.generateHaikuSentence(5,50))
+		out.append("-------------------")
+		bot.sendMessage("PRIVMSG", channel, out)
 	def listSentences(self, bot, channel, params):
 		for i, sentence in enumerate(self.sentences):
 			bot.sendMessage("PRIVMSG", channel, str(i) + ": " + sentence.encode("utf8"))
