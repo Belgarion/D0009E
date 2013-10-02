@@ -16,10 +16,10 @@ import traceback
 class Talking(PluginBase):
 	def __init__(self, bot):
 
-		#bot.registerCommand("!talk", self.talk)
-		#bot.registerCommand("!rykte", self.rykte)
-		#bot.registerCommand("!segway", self.segway)
-		#bot.registerCommand("!segue", self.segue)
+		bot.registerCommand("!talk", self.talk)
+		bot.registerCommand("!rykte", self.rykte)
+		bot.registerCommand("!segway", self.segway)
+		bot.registerCommand("!segue", self.segue)
 		bot.registerCommand("!haiku", self.haiku)
 		bot.registerQueryCommand("!listsentences", self.listSentences)
 		bot.registerQueryCommand("!addsentence", self.addSentence)
