@@ -4,13 +4,14 @@
 # BOTNICK Lowe
 
 from pluginbase import PluginBase
+from hyphenator import Hyphenator
 
 import random
 import shutil
 import time
 import codecs
 import traceback
-from  hyphenator import Hyphenator
+
 
 class Talking(PluginBase):
 	def __init__(self, bot):
