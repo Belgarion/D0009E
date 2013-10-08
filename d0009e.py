@@ -177,11 +177,27 @@ class Bot:
 		self.help[command] = helpMessage
 
 	def sendMessage(self, action, target, message = ""):
+		if not hasattr(self.sendMessage, "history"):
+			self.sendMessage.__func__.history = [] # static variable
+
 		if type(message) != type([]):
 			message = [message]
 
 		for i,m in enumerate(message):
-			if i%6 == 0: time.sleep(2)
+			# check history to see if we should do flood protection
+			while True:
+				# clean up history, remove everything older than 5 seconds
+				self.sendMessage.__func__.history = [x for x in self.sendMessage.history if x > time.time() - 5]
+
+				# pause if more than 10 messages was sent during the last 5 seconds
+				# and no more than 1 message every 0.1 seconds
+				if len(self.sendMessage.history) >= 10 or (len(self.sendMessage.history) >= 1 and self.sendMessage.history[-1] > time.time()-0.1):
+					time.sleep(0.1)
+				else:
+					break
+			# add new message to history
+			self.sendMessage.history.append(time.time())
+
 
 			m = str(m)
 			m = m.replace("\r", "")
