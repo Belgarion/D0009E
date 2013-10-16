@@ -175,6 +175,8 @@ class Talking(PluginBase):
 						word = random.choice(tup[0])[tup[1]]
 					else:
 						word = random.choice(tup[0])
+					if sub != "%%DEFINITION1%%":
+						word = random.choice(word.split(", "))
 				sentence = sentence.replace(sub, word, 1)
 
 		return sentence.encode('utf8')
