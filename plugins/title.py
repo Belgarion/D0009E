@@ -76,6 +76,7 @@ class Title(PluginBase):
 		if m:
 			title = m.group(1)
 			title = title.replace("\n", " ")
+			title = title.replace("&amp;", "&")
 			return "[ %s ] Title: %s" % (shortUrl,title)
 		return "[ %s ] Title: Not Found" % (shortUrl)
 
