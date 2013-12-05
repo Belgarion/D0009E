@@ -15,8 +15,8 @@ import traceback
 
 class Talking(PluginBase):
 	def __init__(self, bot):
-
 		bot.registerCommand("!talk", self.talk)
+		bot.registerCommand("!mtalk", self.talk_markov)
 		bot.registerCommand("!rykte", self.rykte)
 		bot.registerCommand("!segway", self.segway)
 		bot.registerCommand("!segue", self.segue)
@@ -40,31 +40,50 @@ class Talking(PluginBase):
 		self.loadWords()
 		self.loadDict("dict/sagonamn", self.namn)
 
-		"""self.sentences = ["Du är %%ADJEKTIV5%% än %%NAMN%%",
-				"Ska %%PRONOMEN%% %%VERB%% en %%SUBSTANTIV%%?",
-				"Hej %%NICK%% vill du med på lite %%SUBSTANTIV%%?",
-				"Jo förresten %%NICK%%, visste du att i %%LAND%% så "
-					"%%VERB4%% de %%SUBSTANTIV5%%",
-				"har ni hört att det går ett rykte om att %%NICK%% har "
-					"%%VERB3%%",
-				"%%NICK%% det går ett rykte att du %%VERB%% %%SUBSTANTIV%% "
-					"stämmer det?",
-				"%%NICK%%: du är allt bra %%ADJEKTIV%% du :)",
-				"%%NICK%%: du får sluta vara så jävla %%ADJEKTIV%%",
-				"%%NICK%%: mja, lite %%ADJEKTIV%% kan du ju vara...",
-				"Asså menar du inte %%SUBSTANTIV%% nu?",
-				"Aah, du menar typ som %%SUBSTANTIV%%?",
-				"Fan jag hatar %%SUBSTANTIV%%",
-				"Asså jag orkar inte med mer %%SUBSTANTIV%%",
-				"Jag har fått en massa spam om %%SUBSTANTIV5%%, "
-					"ska jag ta illa upp?",
-				"Äh, nu får det vara nog. Nu ska jag gå och %%VERB%%",
-				"/away %%SUBSTANTIV%%",
-				"Asså är inte det typ%%DEFINITION1%%"]"""
 		self.sentences = []
-
 		self.loadSentences("sentences.txt")
 
+		self.loadMarkov("markov.txt", 2)
+
+	def loadMarkov(self, filename, degrees=2):
+		self.markov_cache = {}
+		self.markov_degrees = degrees
+		f = open(filename)
+		data = f.read().lower()
+		f.close()
+		self.markov_words = data.split()
+		self.markov_word_size = len(self.markov_words)
+		self.markov_generate_database(degrees)
+
+	def markov_triples(self, degrees):
+		if self.markov_word_size < degrees+1:
+			return
+
+		for i in range(self.markov_word_size - degrees):
+			yield tuple(self.markov_words[i:i+degrees+1])
+
+	def markov_generate_database(self, degrees):
+		for words in self.markov_triples(degrees):
+			key = tuple(words[:-1])
+			if key in self.markov_cache:
+				self.markov_cache[key].append(words[-1])
+			else:
+				self.markov_cache[key] = [words[-1]]
+
+	def markov_generate_text(self, size=25):
+		key = random.choice(self.markov_cache.keys())
+		print key
+		gen_words = []
+		for i in xrange(size):
+			gen_words.append(key[0])
+			key = list(key[1:]) + [random.choice(self.markov_cache[tuple(key)])]
+		return ' '.join(gen_words)
+
+	def talk_markov(self, bot, channel, params):
+		try:
+			bot.sendMessage("PRIVMSG", channel, self.markov_generate_text())
+		except:
+			traceback.print_exc()
 
 	def loadWords(self):
 		f = codecs.open("dict/dsso-1.44.txt",'r','utf-8')
@@ -106,6 +125,7 @@ class Talking(PluginBase):
 		for l in yrkeList:
 			self.yrke.append(l)
 		f.close()
+
 	def loadDict(self, filename, wordlist):
 		f = codecs.open(filename, 'r', 'utf-8')
 		for line in f.readlines():
@@ -220,6 +240,7 @@ class Talking(PluginBase):
 				length-=syllableCount
 			maxtries-=1
 		return sentence
+
 	def haiku(self, bot, channel, params):
 		out = []
 		out.append("[Haiku]------------")
@@ -228,6 +249,7 @@ class Talking(PluginBase):
 		out.append(self.generateHaikuSentence(5,50))
 		out.append("-------------------")
 		bot.sendMessage("PRIVMSG", channel, out)
+
 	def listSentences(self, bot, channel, params):
 		for i, sentence in enumerate(self.sentences):
 			bot.sendMessage("PRIVMSG", channel, str(i) + ": " + sentence.encode("utf8"))
@@ -243,6 +265,7 @@ class Talking(PluginBase):
 			bot.sendMessage("PRIVMSG", channel, "Sentence deleted.")
 		except:
 			bot.sendMessage("PRIVMSG", channel, "Failed to delete sentence.")
+
 	def repSentence(self, bot, channel, params):
 		try:
 			self.sentences[int(params[0])] = " ".join(params[1:]).decode("utf-8")
@@ -251,6 +274,7 @@ class Talking(PluginBase):
 		except:
 			bot.sendMessage("PRIVMSG", channel, "Failed to replace sentence.")
 			traceback.print_exc()
+
 	def on_tick(self, bot):
 		return
 		hour = time.localtime().tm_hour
