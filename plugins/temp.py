@@ -4,6 +4,7 @@ from pluginbase import PluginBase
 import httplib
 import random
 import re
+import json
 
 class Temp(PluginBase):
 	def __init__(self, bot):
@@ -83,35 +84,23 @@ class Temp(PluginBase):
 	def googleweather(self, bot, channel, params):
 		city = ""
 		temperature = ""
-		humidity = ""
 
 		try:
-			conn = httplib.HTTPConnection("www.google.com")
-			conn.request("GET", "/ig/api?weather=%s" % params[0])
+			conn = httplib.HTTPConnection("api.openweathermap.org")
+			conn.request("GET", "/data/2.5/weather?mode=json&units=metric&q=%s" % params[0])
 			resp = conn.getresponse()
 			data = resp.read()
 
-			data = data.replace(">",">\n")
-			lines = data.split("\n")
-			for line in lines:
-				m = re.match(r'\s*<city data="(.*)"/>', line)
-				if m:
-					city = m.groups(1)[0]
-
-				m = re.match(r'\s*<temp_c data="(.*)"/>', line)
-				if m:
-					temperature = m.groups(1)[0]
-
-				m = re.match(r'\s*<humidity data="(.*)"/>', line)
-				if m:
-					humidity = m.groups(1)[0]
+                        decoded_openweathermap = json.loads(data)
+                        city = decoded_openweathermap['name']
+                        temperature = decoded_openweathermap['main']['temp']
 
 			if not temperature or not city:
 				raise ValueError
 
 			bot.sendMessage("PRIVMSG", channel,
-					"Temperature in %s: %s degrees Celsius, %s" % \
-							(city, temperature, humidity))
+					"Temperature in %s: %s degrees Celsius" % \
+							(city, temperature))
 		except Exception, e:
 			return False
 
