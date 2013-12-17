@@ -95,6 +95,9 @@ class Temp(PluginBase):
                         city = decoded_openweathermap['name']
                         temperature = decoded_openweathermap['main']['temp']
 
+                        if city == '':
+                                city = decoded_openweathermap['sys']['country']
+
 			if not temperature or not city:
 				raise ValueError
 
