@@ -208,8 +208,8 @@ class Talking(PluginBase):
 		nick = "%%NICK%%"
 		nick2 = "%%NICK%%"
 		if len(params) > 1:
-			nick = params[0]
-			nick2 = params[1]
+			nick = params[0].replace("_", " ")
+			nick2 = params[1].replace("_", " ")
 			bot.sendMessage("PRIVMSG", channel, self.subSentence(bot, channel,
 				unicode("Det går ett rykte i dataettan att %s har %%%%VERB3%%%% %s." % (nick, nick2), 'utf-8')))
 			return
