@@ -6,6 +6,7 @@ import re
 
 import StringIO
 import struct
+import HTMLParser
 
 def getImageInfo(data):
     data = str(data)
@@ -138,7 +139,12 @@ class Title(PluginBase):
 		if m:
 			title = m.group(1)
 			title = title.replace("\n", " ")
-			title = title.replace("&amp;", "&")
+			#title = title.replace("&amp;", "&")
+			try:
+				h = HTMLParser.HTMLParser()
+				title = h.unescape(title).encode("utf-8")
+			except:
+				pass
 			return "[ %s ] Title: %s" % (shortUrl,title)
 		# check if image
 		type, width, height = getImageInfo(data)
