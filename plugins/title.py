@@ -139,6 +139,7 @@ class Title(PluginBase):
 		if m:
 			title = m.group(1)
 			title = title.replace("\n", " ")
+			title = title.strip()
 			#title = title.replace("&amp;", "&")
 			try:
 				h = HTMLParser.HTMLParser()
