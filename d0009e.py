@@ -25,7 +25,7 @@ class Bot:
 			self.channels[chan.upper()] = ChannelStats()
 		self.names_cur_channel = None
 
-		self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+		self.sock = None
 		self.msg_re = re.compile('^(:([^ ]+))? *([^ ]+) +:?([^ ]*) *:?(.*)$')
 
 		self.joined = False
@@ -149,12 +149,38 @@ class Bot:
 		while True:
 			try:
 				self.joined = False
-				self.sock.close()
+				if self.sock is not None:
+					self.sock.close()
 
-				self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+				for res in socket.getaddrinfo(self.irc_server[0], self.irc_server[1], socket.AF_UNSPEC, socket.SOCK_STREAM):
+					af, socktype, proto, canonname, sa = res
+					print "Connecting"
+					print "af:",af
+					print "socktype:", socktype
+					print "proto:", proto
+					print "canonname:", canonname
+					print "sa:", sa
+					try:
+						self.sock = socket.socket(af, socktype, proto)
+					except socket.error as msg:
+						print "Creating socket error", msg
+						self.sock = None
+						continue
+					try:
+						self.sock.connect(sa)
+					except socket.error as msg:
+						print "Connect: Socket error", msg
+						self.sock.close()
+						self.sock = None
+						continue
+					break
+				if self.sock is None:
+					print "Could not open socket"
+					time.sleep(10)
+					continue
+
 				self.recvThread.sock = self.sock
 
-				self.sock.connect(self.irc_server)
 				self.sendMessage('USER', '%s 8 *' % self.nick, 'Botten')
 				self.sendMessage('NICK', self.nick)
 				self.recvThread.connected = True
@@ -365,6 +391,9 @@ class RecvThread(threading.Thread):
 		socket.setdefaulttimeout(30)
 		endpoint_notconnected_count = 0
 		while not self.quit:
+			if self.sock is None:
+				self.connected = False
+				continue
 			try:
 				buffer += self.sock.recv(1024)
 				commands = buffer.split("\r\n")[:-1]
