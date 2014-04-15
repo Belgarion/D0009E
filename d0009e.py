@@ -239,7 +239,12 @@ class Bot:
 
 			print "[031m>>[0m", buf,
 			while buf:
-				sent = self.sock.send(buf)
+				try:
+					sent = self.sock.send(buf)
+				except:
+					traceback.print_exc()
+					print "Failed to send message"
+					self.recvThread.connected = False
 				buf = buf[sent:]
 
 	def handleCommands(self):
