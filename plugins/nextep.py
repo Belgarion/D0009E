@@ -21,13 +21,20 @@ class NextEp(PluginBase):
 			return e
 
 		name = "Not found"
-		nextep = "No info"
+		year = "N/A"
+		nextep = "N/A"
+		lastep = "N/A"
 		for line in data.split("\n"):
 			if "Show Name" in line:
 				name = line.split("@")[1]
+			if "Premiered" in line:
+                                year = line.split("@")[1]
 			if "Next Episode" in line:
 				nextep = ", ".join(line.split("@")[1].split("^"))
+			if "Latest Episode" in line:
+                                lastep = ", ".join(line.split("@")[1].split("^"))
 
-		return "%s: Next episode: %s" % (name, nextep)
+
+		return "%s (%s) - Next episode: %s - Last episode: %s" % (name, year, nextep, lastep)
 
 mainclass = NextEp
