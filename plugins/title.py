@@ -7,6 +7,22 @@ import re
 import StringIO
 import struct
 import HTMLParser
+import string
+
+def simpleencode(str):
+	out = ""
+	validchars = string.ascii_letters + string.digits + '-._~:/?#[]@!$&\'()*+,;='
+	for char in str:
+		if char in validchars:
+			out += char
+		else:
+			out += "%" + hex(ord(char))[2:]
+	return out
+
+class NoRedirection(urllib2.HTTPErrorProcessor):
+  def http_response(self, request, response):
+    return response
+  https_response = http_response
 
 def getImageInfo(data):
     data = str(data)
@@ -129,7 +145,24 @@ class Title(PluginBase):
 
 			headers = { 'User-Agent' : 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.8; rv:24.0) Gecko/20100101 Firefox/24.0' }
 			req = urllib2.Request(url,None,headers)
-			f = urllib2.urlopen(req)
+			opener = urllib2.build_opener(NoRedirection)
+			f = opener.open(req)
+			print "Code:", f.getcode()
+			if f.getcode() >= 400:
+				print f.read(1024)
+				return "Error: %s" % (f.getcode())
+			location = f.info().getheader('Location')
+			print "URL:",url
+			while location != None:
+				print "Location: " + location
+				req=urllib2.Request(simpleencode(location),None, headers)
+				f.close()
+				f = opener.open(req)
+				print "Code:", f.getcode()
+				if f.getcode() >= 400:
+					print f.read(1024)
+					return "Error: %s" % (f.getcode())
+				location = f.info().getheader('Location')
 			data = f.read(10240) # title should be in first 10kB
 			f.close()
 		except urllib2.HTTPError, e:
