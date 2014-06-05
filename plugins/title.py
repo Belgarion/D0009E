@@ -163,7 +163,7 @@ class Title(PluginBase):
 					print f.read(1024)
 					return "Error: %s" % (f.getcode())
 				location = f.info().getheader('Location')
-			data = f.read(10240) # title should be in first 10kB
+			data = f.read(1024000) # title should be in first 1MB
 			f.close()
 		except urllib2.HTTPError, e:
 			return "Error: %s" % e
