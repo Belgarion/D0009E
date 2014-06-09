@@ -1,6 +1,6 @@
 # -*- encoding: utf-8 -*-
 
-from pluginbase import PluginBase
+from .pluginbase import PluginBase
 
 import time
 import datetime
@@ -27,7 +27,7 @@ class Xmas(PluginBase):
 					talking = i
 					break
 
-			for chan in bot.channels.keys():
+			for chan in list(bot.channels.keys()):
 				talking.talk(bot, chan, [])
 				bot.sendMessage("PRIVMSG", chan,
 						"och btw, det är %s dagar kvar till jul" % \

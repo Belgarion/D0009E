@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from pluginbase import PluginBase
+from .pluginbase import PluginBase
 
 import traceback
 import random
@@ -24,7 +24,7 @@ class DieRoll(PluginBase):
 
 	def dieroll(self, params):
 		buf = ""
-		params = map(str.upper, params)
+		params = list(map(str.upper, params))
 		for param in params:
 			dice, sides = param.split("D")
 			mod = 0
@@ -49,7 +49,7 @@ class DieRoll(PluginBase):
 
 			buf +=  "%s [ " % (param)
 			total = 0
-			for i in xrange(dice):
+			for i in range(dice):
 				if len(buf) > 450:
 					return buf
 

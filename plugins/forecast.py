@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
-from pluginbase import PluginBase
+from .pluginbase import PluginBase
 
-import httplib
+import http.client
 import time
 import traceback
 
@@ -30,11 +30,11 @@ class Forecast(PluginBase):
 		title = ""
 		description = ""
 
-		conn = httplib.HTTPConnection("www.yr.no")
+		conn = http.client.HTTPConnection("www.yr.no")
 		path = "/place/Sweden/Norrbotten/Lule%C3%A5/forecast.rss"
 		conn.request("GET", path)
 		resp = conn.getresponse()
-		data = resp.read()
+		data = resp.read().decode('utf-8')
 
 		lines = data.split("\n")
 		lines = [i.strip("\r\n").strip() for i in lines]

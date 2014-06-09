@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from pluginbase import PluginBase
+from .pluginbase import PluginBase
 
 import random
 import time
@@ -34,7 +34,7 @@ class QuietMessages(PluginBase):
 		self.sendQuietMessages(bot)
 
 	def sendQuietMessages(self, bot):
-		for channel, chanstats in bot.channels.iteritems():
+		for channel, chanstats in bot.channels.items():
 			if time.time() - chanstats.lastMessage > 24*60*60: # After 24 hours
 				chanstats.lastMessage = time.time()
 				try:

@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
-from pluginbase import PluginBase
+from .pluginbase import PluginBase
 
-import urllib
-from urllib import FancyURLopener
+import urllib.request, urllib.parse, urllib.error
+from urllib.request import FancyURLopener
 import random
 import re
 
@@ -23,7 +23,7 @@ class Google(PluginBase):
 
 	def handleGoogle(self, bot, channel, params):
 		url = "http://www.google.se/search?q=%s&ie=utf-8&oe=utf-8&rls=en" % \
-				(urllib.quote_plus(" ".join(params)))
+				(urllib.parse.quote_plus(" ".join(params)))
 		title = "No Title"
 
 		try:
@@ -32,7 +32,7 @@ class Google(PluginBase):
 			bot.sendMessage("PRIVMSG", channel, "Error opening url.")
 			return
 
-		data = file.read(1024*1024)
+		data = file.read(1024*1024).decode('utf-8')
 		file.close()
 
 		# What you see in your browser isn't what google sends over the socket.
@@ -40,7 +40,7 @@ class Google(PluginBase):
 		m = re.search('<a href="\/url\?q=(.*?)&amp;.*?>(.*?)<\/a>', data)
 		if m:
 			title = re.sub('<.+?>', '', m.group(2))
-			url = urllib.unquote(m.group(1));
+			url = urllib.parse.unquote(m.group(1))
 
 		self.reportLink(bot, channel, url, title)
 

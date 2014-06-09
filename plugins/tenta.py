@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
-from pluginbase import PluginBase
+from .pluginbase import PluginBase
 
-import urllib2
+import urllib.request, urllib.error, urllib.parse
 import time
 import re
 
@@ -17,7 +17,7 @@ class Tenta(PluginBase):
 		try:
 			url = "https://portal.student.ltu.se/tentapub/plokal.php?" \
 				+ "villkor=+and+t_schema.kurs%%3D'%s'&sortering=1" % (course)
-			f = urllib2.urlopen(url)
+			f = urllib.request.urlopen(url)
 			data = f.read()
 			data = data.replace("&nbsp;", " ")
 			data = data.replace("\n", "")
@@ -47,13 +47,13 @@ class Tenta(PluginBase):
 					results.append(line)
 
 
-				print results
+				print(results)
 				if len(results) > 2:
 					return results[:1]+['And (%d) more ( %s )' % (len(results) - 1, url)]
 				return results
 			else:
 				return "Error"
-		except Exception, e:
+		except Exception as e:
 			return e
 
 mainclass = Tenta

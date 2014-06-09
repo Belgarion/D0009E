@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from pluginbase import PluginBase
+from .pluginbase import PluginBase
 
 import math
 import traceback
@@ -13,7 +13,11 @@ class Calc(PluginBase):
 		if len(params) < 1:
 			return "Usage: !calc <expression>"
 
-		result = self.calc("".join(params))
+		result = None
+		try:
+			result = self.calc("".join(params))
+		except Exception as e:
+			result = "Error"
 		bot.sendMessage("PRIVMSG", channel, str(result))
 
 	def calc(self, expr):

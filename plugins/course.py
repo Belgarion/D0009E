@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
-from pluginbase import PluginBase
+from .pluginbase import PluginBase
 
-import urllib2
+import urllib.request, urllib.error, urllib.parse
 import re
 
 class Course(PluginBase):
@@ -20,10 +20,10 @@ class Course(PluginBase):
 
 		try:
 			url = "http://www.ltu.se/edu/course/%s/%s?ugglanCat=student" % (courseCode[:3], courseCode)
-			f = urllib2.urlopen(url)
-			data = f.read()
+			f = urllib.request.urlopen(url)
+			data = f.read().decode('iso-8859-1')
 			f.close()
-		except urllib2.HTTPError, e:
+		except urllib.error.HTTPError as e:
 			return "Error: %s" % e.code
 
 		m = re.search("<title>\n?(.*)\n?</title>", data)

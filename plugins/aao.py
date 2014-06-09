@@ -1,6 +1,6 @@
 # -*- encoding: utf-8 -*-
 
-from pluginbase import PluginBase
+from .pluginbase import PluginBase
 
 class AAO(PluginBase):
 	def __init__(self, bot):

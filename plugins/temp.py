@@ -1,10 +1,11 @@
 # -*- coding: utf-8 -*-
-from pluginbase import PluginBase
+from .pluginbase import PluginBase
 
-import httplib
+import http.client
 import random
 import re
 import json
+import traceback
 
 class Temp(PluginBase):
 	def __init__(self, bot):
@@ -27,10 +28,10 @@ class Temp(PluginBase):
 			return
 
 
-		conn = httplib.HTTPConnection("marge.campus.ltu.se")
+		conn = http.client.HTTPConnection("marge.campus.ltu.se")
 		conn.request("GET", "/temp/")
 		resp = conn.getresponse()
-		data = resp.read()
+		data = resp.read().decode('iso-8859-1')
 
 		lines = data.split("\n")
 		for line in lines:
@@ -46,10 +47,10 @@ class Temp(PluginBase):
 		if params[0] == "special":
 			temp = "Too hot"
 		elif params[0] == "serverrum":
-			conn = httplib.HTTPConnection("graphs.se")
+			conn = http.client.HTTPConnection("graphs.se")
 			conn.request("GET", "/serverrum.txt")
 			resp = conn.getresponse()
-			data = resp.read()
+			data = resp.read().decode('utf-8')
 			temp = data
 
 		if temp:
@@ -61,11 +62,11 @@ class Temp(PluginBase):
 
 	def temperaturnu(self, bot, channel, params):
 		try:
-			conn = httplib.HTTPConnection("wap.temperatur.nu")
+			conn = http.client.HTTPConnection("wap.temperatur.nu")
 			conn.request("GET", "/%s" % params[0].lower().replace("å","a").
 					replace("ä", "a").replace("ö", "o"))
 			resp = conn.getresponse()
-			data = resp.read()
+			data = resp.read().decode('iso-8859-1')
 
 			lines = data.split("\n")
 			for line in lines:
@@ -76,7 +77,9 @@ class Temp(PluginBase):
 
 			bot.sendMessage("PRIVMSG", channel,
 					"Temperature in %s: %s" % (city, temperature))
-		except Exception, e:
+		except Exception as e:
+			traceback.print_exc()
+			print("Temperaturnu failed")
 			return False
 
 		return True
@@ -86,17 +89,17 @@ class Temp(PluginBase):
 		temperature = ""
 
 		try:
-			conn = httplib.HTTPConnection("api.openweathermap.org")
+			conn = http.client.HTTPConnection("api.openweathermap.org")
 			conn.request("GET", "/data/2.5/weather?mode=json&units=metric&q=%s" % params[0])
 			resp = conn.getresponse()
-			data = resp.read()
+			data = resp.read().decode('utf-8')
 
-                        decoded_openweathermap = json.loads(data)
-                        city = decoded_openweathermap['name']
-                        temperature = decoded_openweathermap['main']['temp']
+			decoded_openweathermap = json.loads(data)
+			city = decoded_openweathermap['name']
+			temperature = decoded_openweathermap['main']['temp']
 
-                        if city == '':
-                                city = decoded_openweathermap['sys']['country']
+			if city == '':
+					city = decoded_openweathermap['sys']['country']
 
 			if not temperature or not city:
 				raise ValueError
@@ -104,7 +107,8 @@ class Temp(PluginBase):
 			bot.sendMessage("PRIVMSG", channel,
 					"Temperature in %s: %s degrees Celsius" % \
 							(city, temperature))
-		except Exception, e:
+		except Exception as e:
+			print("googleweather failed")
 			return False
 
 		return True

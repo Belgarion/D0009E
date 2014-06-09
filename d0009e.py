@@ -1,15 +1,16 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 import socket
 import time
 import threading
 import traceback
-import thread
+import _thread
 import random
 import sys
 import re
 import signal
-import ConfigParser
+import configparser
+from imp import reload
 
 class ChannelStats:
 	def __init__(self):
@@ -53,7 +54,7 @@ class Bot:
 					plugin = __import__('plugins.%s' % i, fromlist=[None])
 					reload(plugin)
 					if "mainclass" in dir(plugin):
-						print "Loading", i
+						print("Loading", i)
 						obj = plugin.mainclass(self)
 						if self.config.has_section(plugin.__name__):
 							conflist = self.config.items(plugin.__name__)
@@ -62,7 +63,7 @@ class Bot:
 								conf[c[0]] = c[1]
 							obj.setConfig(conf)
 						else:
-							print "No config for plugin %s" % (plugin.__name__)
+							print("No config for plugin %s" % (plugin.__name__))
 						self.plugins.append(obj)
 				except:
 					traceback.print_exc()
@@ -70,7 +71,7 @@ class Bot:
 			traceback.print_exc()
 
 	def loadSettings(self):
-		self.config = ConfigParser.RawConfigParser()
+		self.config = configparser.RawConfigParser()
 		self.config.read('d0009e.cfg')
 
 		self.irc_server = (self.config.get('connection', 'server'),
@@ -85,7 +86,7 @@ class Bot:
 		self.lastSaveSettings = time.time()
 		for plugin in self.plugins:
 			conf = plugin.getConfigDict()
-			for key in conf.keys():
+			for key in list(conf.keys()):
 				self.config.set(plugin.__module__, key, conf[key])
 
 		self.config.set('connection', 'channels', " ".join(self.chans))
@@ -97,8 +98,8 @@ class Bot:
 			f = open("d0009e.cfg", "w")
 			self.config.write(f)
 			f.close()
-		except Exception, e:
-			print "saveSettings failed"
+		except Exception as e:
+			print("saveSettings failed")
 			traceback.print_exc()
 
 	def run(self):
@@ -112,7 +113,7 @@ class Bot:
 		self.connect()
 		while self.running:
 			if not self.recvThread.connected:
-				print "Not connected, reconnecting"
+				print("Not connected, reconnecting")
 				time.sleep(30)
 				self.connect()
 
@@ -135,10 +136,10 @@ class Bot:
 		self.sock.close()
 
 	def quit(self):
-		print "Saving settings"
+		print("Saving settings")
 		self.saveSettings()
 
-		print "Quitting"
+		print("Quitting")
 		self.sendMessage("QUIT", ":SIGINT")
 		self.running = False
 
@@ -154,28 +155,28 @@ class Bot:
 
 				for res in socket.getaddrinfo(self.irc_server[0], self.irc_server[1], socket.AF_UNSPEC, socket.SOCK_STREAM):
 					af, socktype, proto, canonname, sa = res
-					print "Connecting"
-					print "af:",af
-					print "socktype:", socktype
-					print "proto:", proto
-					print "canonname:", canonname
-					print "sa:", sa
+					print("Connecting")
+					print("af:",af)
+					print("socktype:", socktype)
+					print("proto:", proto)
+					print("canonname:", canonname)
+					print("sa:", sa)
 					try:
 						self.sock = socket.socket(af, socktype, proto)
 					except socket.error as msg:
-						print "Creating socket error", msg
+						print("Creating socket error", msg)
 						self.sock = None
 						continue
 					try:
 						self.sock.connect(sa)
 					except socket.error as msg:
-						print "Connect: Socket error", msg
+						print("Connect: Socket error", msg)
 						self.sock.close()
 						self.sock = None
 						continue
 					break
 				if self.sock is None:
-					print "Could not open socket"
+					print("Could not open socket")
 					time.sleep(10)
 					continue
 
@@ -185,9 +186,9 @@ class Bot:
 				self.sendMessage('NICK', self.nick)
 				self.recvThread.connected = True
 				return
-			except Exception, e:
+			except Exception as e:
 				traceback.print_exc()
-				print "Connection failed, retrying in 10 seconds"
+				print("Connection failed, retrying in 10 seconds")
 				time.sleep(10)
 
 	def registerCommand(self, command, func):
@@ -237,20 +238,20 @@ class Bot:
 			else:
 				buf = "%s %s\r\n" % (action, target)
 
-			print "[031m>>[0m", buf,
+			print("[031m>>[0m", buf, end=' ')
 			while buf:
 				try:
-					sent = self.sock.send(buf)
+					sent = self.sock.send(buf.encode())
+					buf = buf[sent:]
 				except:
 					traceback.print_exc()
-					print "Failed to send message"
+					print("Failed to send message")
 					self.recvThread.connected = False
-				buf = buf[sent:]
 
 	def handleCommands(self):
 		while self.recvThread.commands != []:
 			line = self.recvThread.commands.pop()
-			print "[032m<<[0m", line
+			print("[032m<<[0m", line)
 
 			m = self.msg_re.match(line)
 			source, action, target, message = m.group(2, 3, 4, 5)
@@ -303,7 +304,7 @@ class Bot:
 			elif action.upper() == "QUIT":
 				nick = source.split("!")[0]
 
-				for i in self.channels.values():
+				for i in list(self.channels.values()):
 					if nick in i.names:
 						i.names.remove(nick)
 
@@ -315,7 +316,7 @@ class Bot:
 				nick = source.split("!")[0]
 				newnick = target
 
-				for i in self.channels.values():
+				for i in list(self.channels.values()):
 					if nick in i.names:
 						i.names.remove(nick)
 						i.names.append(newnick)
@@ -346,9 +347,9 @@ class Bot:
 						nick, userhost = source.split("!")
 						try:
 							if command in self.queryCommands:
-								thread.start_new_thread(self.queryCommands[command],
+								_thread.start_new_thread(self.queryCommands[command],
 									(self, nick, args))
-						except Exception, e:
+						except Exception as e:
 							traceback.print_exc()
 							self.sendMessage("PRIVMSG", target, "Error!!")
 
@@ -362,24 +363,24 @@ class Bot:
 									"reload: Access denied")
 							continue
 
-						print "Reloading"
+						print("Reloading")
 						self.loadPlugins()
 						self.sendMessage("PRIVMSG", target, "reload successful")
 						continue
 
 					try:
 						if command in self.commands:
-							thread.start_new_thread(self.commands[command],
+							_thread.start_new_thread(self.commands[command],
 								(self, target, args))
 						else:
 							for contentCmd in self.contentCommands:
 								if re.search(contentCmd, message):
-									thread.start_new_thread(
+									_thread.start_new_thread(
 											self.contentCommands[contentCmd],
 											(self, target, message))
 									break
 
-					except Exception, e:
+					except Exception as e:
 						traceback.print_exc()
 						self.sendMessage("PRIVMSG", target, "Error!!")
 
@@ -400,40 +401,41 @@ class RecvThread(threading.Thread):
 				self.connected = False
 				continue
 			try:
-				buffer += self.sock.recv(1024)
+				buffer += self.sock.recv(1024).decode("utf-8")
 				commands = buffer.split("\r\n")[:-1]
 				buffer = buffer[buffer.rfind("\r\n")+2:]
 				for command in commands:
 					self.addCommand(command)
 				endpoint_notconnected_count = 0
 			except socket.timeout:
-				print "Timeout"
+				print("Timeout")
 				#self.connected = False
-			except socket.error, (value, message):
+			except socket.error as xxx_todo_changeme:
+				(value, message) = xxx_todo_changeme.args
 				if value == 103: # software caused connection reset
-					print value, message
+					print(value, message)
 					self.connected = False
 				elif value == 104: # connection reset by peer
-					print value, message
+					print(value, message)
 					self.connected = False
 				elif value == 107: # transport endpoint not connected
-					print value, message
+					print(value, message)
 					endpoint_notconnected_count += 1
 					if endpoint_notconnected_count > 20:
 						self.connected = False
 						endpoint_notconnected_count = 0
 					time.sleep(2)
 				elif value == 110: # connection timed out
-					print value, message
-					print "Sleeping 10 seconds, then retrying"
+					print(value, message)
+					print("Sleeping 10 seconds, then retrying")
 					time.sleep(10)
 					self.connected = False
 				else:
 					traceback.print_exc()
-					print "else:", value, message
+					print("else:", value, message)
 					time.sleep(0.1)
-			except Exception, e:
-				print "other exception"
+			except Exception as e:
+				print("other exception")
 				traceback.print_exc()
 				time.sleep(0.1)
 
@@ -443,7 +445,7 @@ class RecvThread(threading.Thread):
 b = Bot()
 
 def keyint(signum, frame):
-	print "Received signal:", signum
+	print("Received signal:", signum)
 	b.quit()
 
 signal.signal(signal.SIGINT, keyint)

@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
 # This 'Fulhack' is made by ElectricMan, hello@electricman.se
-from pluginbase import PluginBase
+from .pluginbase import PluginBase
 
-import httplib
+import http.client
 import json
+import traceback
 
 class Ticker(PluginBase):
 	def __init__(self, bot):
@@ -17,18 +18,18 @@ class Ticker(PluginBase):
 
 	def handleTicker(self, bot, channel, params):
 		try:
-			conn = httplib.HTTPSConnection("btc-e.com")
+			conn = http.client.HTTPSConnection("btc-e.com")
 			conn.request("GET", "/api/2/btc_usd/ticker")
 			resp = conn.getresponse()
-			data_btc = resp.read()
+			data_btc = resp.read().decode('iso-8859-1')
 
 			decoded_btc_usd = json.loads(data_btc)
 			btc_usd = round(decoded_btc_usd['ticker']['last'], 2)
 
-			conn = httplib.HTTPSConnection("btc-e.com")
+			conn = http.client.HTTPSConnection("btc-e.com")
 			conn.request("GET", "/api/2/ltc_usd/ticker")
 			resp = conn.getresponse()
-			data_ltc = resp.read()
+			data_ltc = resp.read().decode('iso-8859-1')
 
 			decoded_ltc_usd = json.loads(data_ltc)
 			ltc_usd = round(decoded_ltc_usd['ticker']['last'], 2)
@@ -36,14 +37,15 @@ class Ticker(PluginBase):
 			bot.sendMessage("PRIVMSG", channel,	"LTC: %s USD -  BTC: %s USD" % (ltc_usd, btc_usd))
 
 		except:
+			traceback.print_exc()
 			bot.sendMessage("PRIVMSG", channel, "Something went wrong...")
 
 	def handleBTC(self, bot, channel, params):
 		try:
-			conn = httplib.HTTPSConnection("btc-e.com")
+			conn = http.client.HTTPSConnection("btc-e.com")
 			conn.request("GET", "/api/2/btc_usd/ticker")
 			resp = conn.getresponse()
-			data_btc = resp.read()
+			data_btc = resp.read().decode('iso-8859-1')
 
 			decoded_btc_usd = json.loads(data_btc)
 
@@ -55,14 +57,15 @@ class Ticker(PluginBase):
 			bot.sendMessage("PRIVMSG", channel,	"BTC/USD: Last %s USD, High %s USD, Low %s USD, Average %s USD" % (btc_usd, btc_usd_high, btc_usd_low, btc_usd_avg))
 
 		except:
+			traceback.print_exc()
 			bot.sendMessage("PRIVMSG", channel, "BTC is going to tha moooooon! (No, something went wrong...)")
 
 	def handleLTC(self, bot, channel, params):
 		try:
-			conn = httplib.HTTPSConnection("btc-e.com")
+			conn = http.client.HTTPSConnection("btc-e.com")
 			conn.request("GET", "/api/2/ltc_usd/ticker")
 			resp = conn.getresponse()
-			data_ltc = resp.read()
+			data_ltc = resp.read().decode('iso-8859-1')
 
 			decoded_ltc_usd = json.loads(data_ltc)
 
@@ -74,6 +77,7 @@ class Ticker(PluginBase):
 			bot.sendMessage("PRIVMSG", channel,	"LTC/USD: Last %s USD, High %s USD, Low %s USD, Average %s USD" % (ltc_usd, ltc_usd_high, ltc_usd_low, ltc_usd_avg))
 
 		except:
+			traceback.print_exc()
 			bot.sendMessage("PRIVMSG", channel, "LTC is going to tha moooooon! (No, something went wrong...)")
 
 mainclass = Ticker

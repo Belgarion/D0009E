@@ -3,8 +3,8 @@
 
 # BOTNICK Lowe
 
-from pluginbase import PluginBase
-from hyphenator import Hyphenator
+from .pluginbase import PluginBase
+from .hyphenator import Hyphenator
 
 import random
 import shutil
@@ -48,7 +48,7 @@ class Talking(PluginBase):
 	def loadMarkov(self, filename, degrees=2):
 		self.markov_cache = {}
 		self.markov_degrees = degrees
-		f = open(filename)
+		f = open(filename, errors='ignore')
 		data = f.read().lower()
 		f.close()
 		self.markov_words = data.split()
@@ -71,10 +71,10 @@ class Talking(PluginBase):
 				self.markov_cache[key] = [words[-1]]
 
 	def markov_generate_text(self, size=25):
-		key = random.choice(self.markov_cache.keys())
-		print key
+		key = random.choice(list(self.markov_cache.keys()))
+		print(key)
 		gen_words = []
-		for i in xrange(size):
+		for i in range(size):
 			gen_words.append(key[0])
 			key = list(key[1:]) + [random.choice(self.markov_cache[tuple(key)])]
 		return ' '.join(gen_words)
@@ -137,7 +137,7 @@ class Talking(PluginBase):
 
 		f = codecs.open(filename, 'w', 'utf-8')
 		for i in self.sentences:
-			print >>f, i
+			print(i, file=f)
 		f.close()
 
 	def  loadSentences(self, filename):
@@ -199,7 +199,7 @@ class Talking(PluginBase):
 						word = random.choice(word.split(", "))
 				sentence = sentence.replace(sub, word, 1)
 
-		return sentence.encode('utf8')
+		return sentence
 
 	def talk(self, bot, channel, params):
 		bot.sendMessage("PRIVMSG", channel, self.getSentence(bot, channel))
@@ -211,38 +211,40 @@ class Talking(PluginBase):
 			nick = params[0].replace("_", " ")
 			nick2 = params[1].replace("_", " ")
 			bot.sendMessage("PRIVMSG", channel, self.subSentence(bot, channel,
-				unicode("Det går ett rykte i dataettan att %s har %%%%VERB3%%%% %s." % (nick, nick2), 'utf-8')))
+				("Det går ett rykte i dataettan att %s har %%%%VERB3%%%% %s." % (nick, nick2))))
 			return
 
 		if len(params) > 0:
 			nick = params[0]
 		bot.sendMessage("PRIVMSG", channel, self.subSentence(bot, channel,
-			unicode("Det går ett rykte i dataettan att %s har %%%%VERB3%%%%." % (nick), 'utf-8')))
+			("Det går ett rykte i dataettan att %s har %%%%VERB3%%%%." % (nick))))
 
 	def segway(self, bot, channel, params):
-		if random.randint(0,100) != 0: amne = random.choice(self.substantiv)[0].encode("utf8")
-		else:	amne = random.choice(self.land).encode("utf8")
+		if random.randint(0,100) != 0: amne = random.choice(self.substantiv)[0]
+		else:	amne = random.choice(self.land)
 		outstr = "        _\n~~      /\n\n~~     / Nytt Ämne: "+amne+"\n~~ ___/\n   (o)"
 		outlst = outstr.split("\n")
 		bot.sendMessage("PRIVMSG", channel, outlst)
+
 	def segue(self, bot, channel, params):
-		if random.randint(0,100) != 0: o = random.choice(self.substantiv)[0].encode("utf8")
-		else:	o = random.choice(self.land).encode("utf8") # 1% länder, bygger på statestik.
+		if random.randint(0,100) != 0: o = random.choice(self.substantiv)[0]
+		else:	o = random.choice(self.land) # 1% länder, bygger på statestik.
 		lst  = ["Grabbar, vad tycker ni om "+o+"?","Så fruktansvärt tråkigt ämne, kan ni inte prata om "+o+" istället?","Så... angående "+o+"?"]
 		bot.sendMessage("PRIVMSG", channel, random.choice(lst))
+
 	def generateHaikuSentence(self, length, maxtries):
 		sentence = ""
 		while length > 0 or maxtries > 0:
 			wordtype = random.randint(0,99)
 			if wordtype >= 0 and wordtype <25:
-				o = random.choice(self.substantiv)[0].encode("utf8")
+				o = random.choice(self.substantiv)[0]
 			elif wordtype >= 25 and wordtype <50:
-				o = random.choice(self.verb)[0].encode("utf8")
+				o = random.choice(self.verb)[0]
 			elif wordtype >= 50 and wordtype <75:
-				o = random.choice(self.adjektiv)[0].encode("utf8")
+				o = random.choice(self.adjektiv)[0]
 			elif wordtype >=75 and wordtype <99:
-				o = random.choice(self.prepositioner)[0].encode("utf8")
-			hyphword = self.hyph.inserted(o).encode("iso8859-1")
+				o = random.choice(self.prepositioner)[0]
+			hyphword = self.hyph.inserted(o)
 			hyphlist = hyphword.split("-")
 			syllableCount = len(hyphlist)
 			if syllableCount <= length:
@@ -262,7 +264,7 @@ class Talking(PluginBase):
 
 	def listSentences(self, bot, channel, params):
 		for i, sentence in enumerate(self.sentences):
-			bot.sendMessage("PRIVMSG", channel, str(i) + ": " + sentence.encode("utf8"))
+			bot.sendMessage("PRIVMSG", channel, str(i) + ": " + sentence)
 
 	def addSentence(self, bot, channel, params):
 		self.sentences.append(" ".join(params).decode("utf-8"))
@@ -290,7 +292,7 @@ class Talking(PluginBase):
 		hour = time.localtime().tm_hour
 		if time.time() - bot.nextTalk > 0 and hour > 6 and hour <= 23:
 			bot.nextTalk = time.time()  + random.randint(1800, 7200)
-			chan = random.choice(bot.channels.keys())
+			chan = random.choice(list(bot.channels.keys()))
 			bot.sendMessage("PRIVMSG", chan, self.getSentence(bot, chan))
 
 

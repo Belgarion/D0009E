@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
-from pluginbase import PluginBase
+from .pluginbase import PluginBase
 
-import urllib2
+import urllib.request, urllib.error, urllib.parse
 import re
 
-import StringIO
+import io
 import struct
-import HTMLParser
+import html.parser
 import string
 
 def simpleencode(str):
@@ -19,13 +19,13 @@ def simpleencode(str):
 			out += "%" + hex(ord(char))[2:]
 	return out
 
-class NoRedirection(urllib2.HTTPErrorProcessor):
+class NoRedirection(urllib.request.HTTPErrorProcessor):
   def http_response(self, request, response):
     return response
   https_response = http_response
 
 def getImageInfo(data):
-    data = str(data)
+    textData = str(data.decode('iso-8859-1'))
     size = len(data)
     height = -1
     width = -1
@@ -42,15 +42,15 @@ def getImageInfo(data):
     # See PNG 2. Edition spec (http://www.w3.org/TR/PNG/)
     # Bytes 0-7 are below, 4-byte chunk length, then 'IHDR'
     # and finally the 4-byte width, height
-    elif ((size >= 24) and data.startswith('\211PNG\r\n\032\n')
-          and (data[12:16] == 'IHDR')):
+    elif ((size >= 24) and textData.startswith('\211PNG\r\n\032\n')
+          and (textData[12:16] == 'IHDR')):
         content_type = 'image/png'
         w, h = struct.unpack(">LL", data[16:24])
         width = int(w)
         height = int(h)
 
     # Maybe this is for an older PNG version.
-    elif (size >= 16) and data.startswith('\211PNG\r\n\032\n'):
+    elif (size >= 16) and textData.startswith('\211PNG\r\n\032\n'):
         # Check to see if we have the right content type
         content_type = 'image/png'
         w, h = struct.unpack(">LL", data[8:16])
@@ -58,9 +58,9 @@ def getImageInfo(data):
         height = int(h)
 
     # handle JPEGs
-    elif (size >= 2) and data.startswith('\377\330'):
+    elif (size >= 2) and textData.startswith('\377\330'):
         content_type = 'image/jpeg'
-        jpeg = StringIO.StringIO(data)
+        jpeg = io.StringIO(textData)
         jpeg.read(2)
         b = jpeg.read(1)
         try:
@@ -69,10 +69,10 @@ def getImageInfo(data):
                 while (ord(b) == 0xFF): b = jpeg.read(1)
                 if (ord(b) >= 0xC0 and ord(b) <= 0xC3):
                     jpeg.read(3)
-                    h, w = struct.unpack(">HH", jpeg.read(4))
+                    h, w = struct.unpack(">HH", jpeg.read(4).encode('iso-8859-1'))
                     break
                 else:
-                    jpeg.read(int(struct.unpack(">H", jpeg.read(2))[0])-2)
+                    jpeg.read(int(struct.unpack(">H", jpeg.read(2).encode('iso-8859-1'))[0])-2)
                 b = jpeg.read(1)
             width = int(w)
             height = int(h)
@@ -100,7 +100,7 @@ class Title(PluginBase):
 	def handleContentUrl(self, bot, channel, content):
 		m = re.search("(https?://[^\s]+)", content)
 		url = m.group(0)
-		print url
+		print(url)
 		self.handleTitle(bot, channel, [url])
 
 	def shortenURL(self, url):
@@ -132,7 +132,7 @@ class Title(PluginBase):
 		GETURL += "longURL=" + url
 
 		try:
-			f = urllib2.urlopen(GETURL)
+			f = urllib.request.urlopen(GETURL)
 			shortUrl = re.findall("\"url\": \"(.*?)\"",f.read())[0].replace("\/","/")
 			return shortUrl
 		except:
@@ -144,28 +144,33 @@ class Title(PluginBase):
 			shortUrl = self.shortenURL(url)[7:]
 
 			headers = { 'User-Agent' : 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.8; rv:24.0) Gecko/20100101 Firefox/24.0' }
-			req = urllib2.Request(url,None,headers)
-			opener = urllib2.build_opener(NoRedirection)
+			req = urllib.request.Request(url,None,headers)
+			opener = urllib.request.build_opener(NoRedirection)
 			f = opener.open(req)
-			print "Code:", f.getcode()
+			print("Code:", f.getcode())
 			if f.getcode() >= 400:
-				print f.read(1024)
+				print(f.read(1024))
 				return "Error: %s" % (f.getcode())
-			location = f.info().getheader('Location')
-			print "URL:",url
+			location = f.getheader('Location')
+			print("URL:",url)
 			while location != None:
-				print "Location: " + location
-				req=urllib2.Request(simpleencode(location),None, headers)
+				print("Location: " + location)
+				req=urllib.request.Request(simpleencode(location),None, headers)
 				f.close()
 				f = opener.open(req)
-				print "Code:", f.getcode()
+				print("Code:", f.getcode())
 				if f.getcode() >= 400:
-					print f.read(1024)
+					print(f.read(1024))
 					return "Error: %s" % (f.getcode())
-				location = f.info().getheader('Location')
-			data = f.read(1024000) # title should be in first 1MB
+				location = f.getheader('Location')
+			rawData = f.read(1024000)
+			data = ""
+			try:
+				data = rawData.decode('utf-8')
+			except:
+				data = rawData.decode('iso-8859-1')
 			f.close()
-		except urllib2.HTTPError, e:
+		except urllib.error.HTTPError as e:
 			return "Error: %s" % e
 
 		m = re.search("<title>(.*?)</title>", data, re.DOTALL | re.IGNORECASE)
@@ -175,13 +180,13 @@ class Title(PluginBase):
 			title = title.strip()
 			#title = title.replace("&amp;", "&")
 			try:
-				h = HTMLParser.HTMLParser()
-				title = h.unescape(title).encode("utf-8")
+				h = html.parser.HTMLParser()
+				title = h.unescape(title)
 			except:
 				pass
 			return "[ %s ] Title: %s" % (shortUrl,title)
 		# check if image
-		type, width, height = getImageInfo(data)
+		type, width, height = getImageInfo(rawData)
 		if width != -1:
 			return "[ %s ] Image: Type: %s, %sx%s" % (shortUrl, type, width, height)
 		return "[ %s ] Title: Not Found" % (shortUrl)

@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from pluginbase import PluginBase
+from .pluginbase import PluginBase
 import traceback
 import random
 

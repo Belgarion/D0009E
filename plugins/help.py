@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from pluginbase import PluginBase
+from .pluginbase import PluginBase
 
 class Help(PluginBase):
 	def __init__(self, bot):

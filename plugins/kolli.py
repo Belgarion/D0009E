@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
-from pluginbase import PluginBase
+from .pluginbase import PluginBase
 
-import httplib
+import http.client
 import re
 
 class Kolli(PluginBase):
@@ -16,10 +16,10 @@ class Kolli(PluginBase):
 			bot.sendMessage("PRIVMSG", channel, "Something went wronk...")
 			return
 
-		conn = httplib.HTTPConnection("posten.se")
+		conn = http.client.HTTPConnection("posten.se")
 		conn.request("GET", "/tracktrace/TrackConsignments_do.jsp?trackntraceAction=saveSearch&consignmentId=%s" % params[0])
 		resp = conn.getresponse()
-		data = resp.read()
+		data = resp.read().decode('iso-8859-1')
 		url = 'http://posten.se/tracktrace/TrackConsignments_do.jsp?trackntraceAction=saveSearch&consignmentId=%s' % params[0]
 
 		search = re.search('(?ims)<dt>Fr&aring;n:</dt><dd>(.*?)</dd>.*?rightcol.*h2>.*<h3>(.*?)</h3>\s*?(.*?)(<br/>|<div).*?<dt>Vikt:</dt><dd>(.*?)</dd>', data)

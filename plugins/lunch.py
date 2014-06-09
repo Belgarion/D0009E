@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
-from pluginbase import PluginBase
+from .pluginbase import PluginBase
 
-import urllib2
+import urllib.request, urllib.error, urllib.parse
 import time
 import re
 
@@ -74,13 +74,13 @@ class Lunch(PluginBase):
 			return self.getLunchDazhong()
 
 		try:
-			f = urllib2.urlopen("http://www.stuk.nu/menyer/lunchmeny/")
-			data = f.read()
+			f = urllib.request.urlopen("http://www.stuk.nu/menyer/lunchmeny/")
+			data = f.read().decode('iso-8859-1')
 			data = data.replace("&nbsp;", " ")
 			data = data.replace("\r", "")
 			data = data.replace("<BR>", "\n")
 			f.close()
-		except urllib2.HTTPExceptionl, e:
+		except urllib.error.HTTPError as e:
 			return e
 
 		buf = "Lunch @ Stuk: "
@@ -106,11 +106,11 @@ class Lunch(PluginBase):
 		return "Dazhong: Vi serverar åtta varmrätter, salladsbuffé och nybakat bröd varje dag. Kaffe med Friterade bananer och glass till efterrätt. 75:-"
 
 	def getHittaLunchen(self, companyID, day):
-		print "Checking day " + day
+		print("Checking day " + day)
 		week = ".."
 		options = ""
 		try:
-			f = urllib2.urlopen("http://www.hittalunchen.se/Access/Meny.aspx?companyID=%d&showHeader=1" % (companyID))
+			f = urllib.request.urlopen("http://www.hittalunchen.se/Access/Meny.aspx?companyID=%d&showHeader=1" % (companyID))
 			data = f.read()
 			week = re.search("""<div class="lunchMenyHeader">Lunchmeny vecka (\d+)</div>""",data).groups(0)[0]
 			dagdish =  re.search("""<div class="day"><span class="name">"""+day+"""</span>(.*?)<div class="always">""",data,re.DOTALL | re.MULTILINE).groups(1)[0]
@@ -119,7 +119,7 @@ class Lunch(PluginBase):
 			for i in range(len(dishName)):
 				options += "%s %s, " % (dishName[i],dishPrice[i])
 			f.close()
-		except Exception,e:
+		except Exception as e:
 			# This happens when the day isn't on the menu, i.e. if you try !lunch at 14:00 on a friday.
 			return "Stängt."
 		return "%s v%s: %s" % (day, week, options)
@@ -136,7 +136,7 @@ class Lunch(PluginBase):
 		week = ".."
 		options = ""
 		try:
-			f = urllib2.urlopen("http://www.hittalunchen.se/Access/Meny.aspx?companyID=82&amp;css=unik&amp;showHeader=1")
+			f = urllib.request.urlopen("http://www.hittalunchen.se/Access/Meny.aspx?companyID=82&amp;css=unik&amp;showHeader=1")
 			data = f.read()
 			dagdish =  re.search("""<div class="day"><span class="name">"""+day+"""</span>(.*?)<div class="always">""",data,re.DOTALL | re.MULTILINE).groups(1)[0]
 			week = re.search(""" <div class="lunchMenyHeader">Lunchmeny vecka (..)</div>""",data).groups(0)[0]
@@ -154,7 +154,7 @@ class Lunch(PluginBase):
 		week = ".."
 		day = day.split(" ")[0]
 		try:
-			f = urllib2.urlopen("http://www.amica.se/centrumrestaurangen")
+			f = urllib.request.urlopen("http://www.amica.se/centrumrestaurangen")
 			data = f.read()
 			meny = re.search("""<h2>Centrumrestaurangen LTU<br /></h2>(.*?)<div class="boxFoot">""",data,re.DOTALL | re.MULTILINE)
 			menyData = meny.groups(1)[0].replace("&aring;","å").replace("&amp;","&").replace("&auml;","ä").replace("&ouml;","ö")
@@ -189,8 +189,8 @@ class Lunch(PluginBase):
 
 	def getLunchTeknikensHus(self, day):
 		try:
-			f = urllib2.urlopen("http://www.husmans.se/lunchmenyn/")
-			data = f.read()
+			f = urllib.request.urlopen("http://www.husmans.se/lunchmenyn/")
+			data = f.read().decode('iso-8859-1')
 			data = data.replace("&nbsp;", " ")
 			data = data.replace("&amp;", "&")
 			data = data.replace("\r", "")
@@ -209,7 +209,7 @@ class Lunch(PluginBase):
 							"onsdag"  : "wednesday",
 							"torsdag" : "thursday",
 							"fredag"  : "friday"}
-		if day.lower() in daymap.keys():
+		if day.lower() in list(daymap.keys()):
 			engday = daymap[day.lower()]
 		else:
 			return "Teknikens Hus: Stängt."
@@ -253,8 +253,8 @@ class Lunch(PluginBase):
 
 	def getLunchGastis(self, day):
 		try:
-			f = urllib2.urlopen("http://www.kalix.nu/scripts/lunch.asp?uid=1103")
-			data = f.read()
+			f = urllib.request.urlopen("http://www.kalix.nu/scripts/lunch.asp?uid=1103")
+			data = f.read().decode('iso-8859-1')
 			data = data.replace("&nbsp;", " ")
 			data = data.replace("&amp;", "&")
 			data = data.replace("\r", "")

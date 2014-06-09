@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
-from pluginbase import PluginBase
+from .pluginbase import PluginBase
 
-import HTMLParser
-import httplib
+import html.parser
+import http.client
 import re
 
 class Down(PluginBase):
@@ -15,17 +15,17 @@ class Down(PluginBase):
 		if len(params) < 1:
 			return
 
-		conn = httplib.HTTPConnection("downforeveryoneorjustme.com")
+		conn = http.client.HTTPConnection("downforeveryoneorjustme.com")
 		conn.request("GET", "/%s" % params[0])
 		resp = conn.getresponse()
-		data = resp.read()
+		data = resp.read().decode('utf-8')
 
 		search = re.search(r'<div id\=\"container\">\s+(.+)<p>.+?<\/p>.+<\/div>', data, re.S)
 
 		if search:
 			message = search.group(1)
 			message = re.sub(r'<[^>]*?>', '', message)
-			message = HTMLParser.HTMLParser().unescape(message)
+			message = html.parser.HTMLParser().unescape(message)
 			bot.sendMessage("PRIVMSG", channel,	"%s" % (message))
 		else:
 			bot.sendMessage("PRIVMSG", channel,	"No result. http://downforeveryoneorjustme.com is down.")

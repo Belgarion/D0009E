@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
-from pluginbase import PluginBase
+from .pluginbase import PluginBase
 
-import urllib2
+import urllib.request, urllib.error, urllib.parse
 
 class NextEp(PluginBase):
 	def __init__(self, bot):
@@ -13,11 +13,11 @@ class NextEp(PluginBase):
 
 	def nextep(self, show):
 		try:
-			f = urllib2.urlopen(
+			f = urllib.request.urlopen(
 				"http://services.tvrage.com/tools/quickinfo.php?show=%s" % show)
 			data = f.read()
 			f.close()
-		except urllib2.HTTPException, e:
+		except urllib2.HTTPException as e:
 			return e
 
 		name = "Not found"

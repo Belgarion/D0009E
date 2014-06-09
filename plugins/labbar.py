@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from pluginbase import PluginBase
+from .pluginbase import PluginBase
 import traceback
 import os
 import time
@@ -65,7 +65,7 @@ class Phonebook:
 	def getEntries(self, name = None):
 		entries = []
 		for i in self.phonebook:
-			if i.name.upper() == name.upper() or name.upper() in map(str.upper, i.alias):
+			if i.name.upper() == name.upper() or name.upper() in list(map(str.upper, i.alias)):
 				entries.append(i)
 
 		return entries
@@ -89,7 +89,7 @@ class Phonebook:
 	def help(self):
 		buf = []
 		buf.append("Available commands:")
-		buf.append(", ".join(self.commands.keys()))
+		buf.append(", ".join(list(self.commands.keys())))
 		return buf
 
 	def add(self, name = None, number = None):
@@ -190,7 +190,7 @@ class Phonebook:
 
 		f = open(filename, "w")
 		for i in self.phonebook:
-			print >>f, "%s;%s;%s%s" % (i.number, i.name, ";".join(i.alias), ";" if len(i.alias) > 0 else "")
+			print("%s;%s;%s%s" % (i.number, i.name, ";".join(i.alias), ";" if len(i.alias) > 0 else ""), file=f)
 		f.close()
 
 	def load(self, filename = None):
@@ -334,8 +334,8 @@ class Labbar(PluginBase):
 
 	def bounce(self, n):
 		buf = ""
-		sign = n/abs(n)
-		for i in xrange(-n, n+(1*sign), 1*sign):
+		sign = n//abs(n)
+		for i in range(-n, n+(1*sign), 1*sign):
 			buf += "%d " % (abs(i)*sign)
 
 		return buf

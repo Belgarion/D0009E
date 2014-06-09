@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 class PluginBase():
+
 	def __init__(self, bot):
 		pass
 
@@ -21,7 +22,7 @@ class PluginBase():
 			self.config = conf
 			self.handleNewConfig()
 		else:
-			print "Unsupported config type", self, conf
+			print("Unsupported config type", self, conf)
 
 	def getConfigDict(self):
 		if "config" in dir(self):
