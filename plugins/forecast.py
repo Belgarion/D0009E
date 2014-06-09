@@ -10,14 +10,19 @@ class Forecast(PluginBase):
 		bot.registerCommand("!forecast", self.handleForecast)
 		bot.addHelp("forecast", "Usage: !forecast")
 
+	def handleNewConfig(self):
+		self.lastForecast = float(self.getConfig("lastForecast", '0'))
+		self.channels = self.getConfig("channels", "").split()
+
 	def on_tick(self, bot):
 		hour = time.localtime().tm_hour
-		if time.time() - bot.lastForecast > 7200 and \
+		if time.time() - self.lastForecast > 7200 and \
 				(hour == 5 or hour == 11 or hour == 17 or hour == 23):
-			bot.lastForecast = time.time()
+			self.lastForecast = time.time()
+			self.updateConfig("lastForecast", str(self.lastForecast))
 			try:
-				self.handleForecast(bot, "#ltudata2010", [])
-				self.handleForecast(bot, "#datasektionen", [])
+				for channel in self.channels:
+					self.handleForecast(bot, channel, [])
 			except:
 				traceback.print_exc()
 

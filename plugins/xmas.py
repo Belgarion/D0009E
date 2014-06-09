@@ -18,7 +18,7 @@ class Xmas(PluginBase):
 		if time.time() - bot.lastChristmasMsg > 23*60*60 and hour == 00:
 			bot.lastChristmasMsg = time.time()
 
-			xmasTime = datetime.datetime(2010, 12, 24, 23, 59,59)
+			xmasTime = datetime.datetime(datetime.datetime.today().year, 12, 24, 23, 59,59)
 			nowTime = datetime.datetime.today()
 			diff = xmasTime - nowTime
 
