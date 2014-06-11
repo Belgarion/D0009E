@@ -133,7 +133,8 @@ class Title(PluginBase):
 
 		try:
 			f = urllib.request.urlopen(GETURL)
-			shortUrl = re.findall("\"url\": \"(.*?)\"",f.read())[0].replace("\/","/")
+			data = f.read().decode('iso-8859-1')
+			shortUrl = re.findall("\"url\": \"(.*?)\"",data)[0].replace("\/","/")
 			return shortUrl
 		except:
 			return ""
