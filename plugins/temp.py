@@ -74,6 +74,9 @@ class Temp(PluginBase):
 					temperature, datetime, city = \
 							[i.strip('</p>') for i in line.split('<p>')]
 					break
+			else:
+				print("Temperatur.nu no Temp: line found.")
+				return False
 
 			bot.sendMessage("PRIVMSG", channel,
 					"Temperature in %s: %s" % (city, temperature))

@@ -8,9 +8,11 @@ class AAO(PluginBase):
 		bot.registerCommand("!\xe5\xe4\xf6", self.latin1)
 
 	def utf8(self, bot, channel, params):
-		bot.sendMessage("PRIVMSG", channel, "UTF-8 :)")
+		#bot.sendMessage("PRIVMSG", channel, "UTF-8 :)")
+		bot.sendMessage("PRIVMSG", channel, "Trasig i python3 :(")
 
 	def latin1(self, bot, channel, params):
-		bot.sendMessage("PRIVMSG", channel, "Latin1 :(")
+		#bot.sendMessage("PRIVMSG", channel, "Latin1 :(")
+		bot.sendMessage("PRIVMSG", channel, "Trasig i python3 :(")
 
 mainclass = AAO

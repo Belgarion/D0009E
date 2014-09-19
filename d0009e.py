@@ -114,7 +114,7 @@ class Bot:
 		while self.running:
 			if not self.recvThread.connected:
 				print("Not connected, reconnecting")
-				time.sleep(30)
+				time.sleep(120)
 				self.connect()
 
 			try:
@@ -149,6 +149,7 @@ class Bot:
 	def connect(self):
 		while True:
 			try:
+				self.recvThread.connecting = True
 				self.joined = False
 				if self.sock is not None:
 					self.sock.close()
@@ -181,6 +182,7 @@ class Bot:
 					continue
 
 				self.recvThread.sock = self.sock
+				self.recvThread.connecting = False
 
 				self.sendMessage('USER', '%s 8 *' % self.nick, 'Botten')
 				self.sendMessage('NICK', self.nick)
@@ -388,7 +390,8 @@ class RecvThread(threading.Thread):
 	def __init__(self, sock):
 		self.sock = sock
 		self.quit = False
-		self.connected = True
+		self.connected = False
+		self.connecting = True
 		self.commands = []
 		threading.Thread.__init__(self)
 
@@ -397,6 +400,9 @@ class RecvThread(threading.Thread):
 		socket.setdefaulttimeout(30)
 		endpoint_notconnected_count = 0
 		while not self.quit:
+			if self.connecting:
+				time.sleep(0.1)
+				continue # wait until connected before doing anything
 			if self.sock is None:
 				self.connected = False
 				continue
@@ -426,6 +432,11 @@ class RecvThread(threading.Thread):
 						endpoint_notconnected_count = 0
 					time.sleep(2)
 				elif value == 110: # connection timed out
+					print(value, message)
+					print("Sleeping 10 seconds, then retrying")
+					time.sleep(10)
+					self.connected = False
+				elif value == 9: # Bad socket descriptor
 					print(value, message)
 					print("Sleeping 10 seconds, then retrying")
 					time.sleep(10)

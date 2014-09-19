@@ -341,10 +341,7 @@ class Labbar(PluginBase):
 		return buf
 
 	def tvarsumma(self, n):
-		if n <= 0: return 0
-		n1 = n % 10
-		n /= 10
-		return n1+self.tvarsumma(n)
+		return n%10 + self.tvarsumma(n/10) if n else 0
 
 	def derivative(self, fStr, x, h):
 		f = lambda x: eval(fStr, {"__builtins__":None},
