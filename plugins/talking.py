@@ -233,7 +233,7 @@ class Talking(PluginBase):
 		bot.sendMessage("PRIVMSG", channel, random.choice(lst))
 
 	def generateHaikuSentence(self, length, maxtries):
-		sentence = ""
+		sentence = []
 		while length > 0 or maxtries > 0:
 			wordtype = random.randint(0,99)
 			if wordtype >= 0 and wordtype <25:
@@ -248,10 +248,11 @@ class Talking(PluginBase):
 			hyphlist = hyphword.split("-")
 			syllableCount = len(hyphlist)
 			if syllableCount <= length:
-				sentence+="".join(hyphlist) + " "
+				sentence.append("".join(hyphlist))
 				length-=syllableCount
 			maxtries-=1
-		return sentence
+		random.shuffle(sentence)
+		return " ".join(sentence)
 
 	def haiku(self, bot, channel, params):
 		out = []
