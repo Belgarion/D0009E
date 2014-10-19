@@ -100,7 +100,6 @@ class Title(PluginBase):
 	def handleContentUrl(self, bot, channel, content):
 		m = re.search("(https?://[^\s]+)", content)
 		url = m.group(0)
-		print(url)
 		self.handleTitle(bot, channel, [url])
 
 	def shortenURL(self, url):
