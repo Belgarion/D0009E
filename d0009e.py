@@ -353,7 +353,7 @@ class Bot:
 									(self, nick, args))
 							if command in self.commands:
 								_thread.start_new_thread(self.commands[command],
-														 (self, nick, args))
+									(self, nick, args))
 						except Exception as e:
 							traceback.print_exc()
 							self.sendMessage("PRIVMSG", target, "Error!!")
