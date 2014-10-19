@@ -108,7 +108,6 @@ class Title(PluginBase):
 		#This is stupid, but special case because reddit people are terrible
 		if re.match("(http\:\/\/|https\:\/\/)?(www\.)?reddit\.com", url):
 			try:
-				print("http://redd.it/"+re.search("comments/(.+?)\/", url).groups(1)[0])
 				return "http://redd.it/"+re.search("comments/(.+?)\/", url).groups(1)[0]
 			except:
 				pass
