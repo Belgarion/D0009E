@@ -104,6 +104,19 @@ class Title(PluginBase):
 		self.handleTitle(bot, channel, [url])
 
 	def shortenURL(self, url):
+
+		#This is stupid, but special case because reddit people are terrible
+		if re.match("(http\:\/\/|https\:\/\/)?(www\.)?reddit\.com", url):
+			try:
+				print("http://redd.it/"+re.search("comments/(.+?)\/", url).groups(1)[0])
+				return "http://redd.it/"+re.search("comments/(.+?)\/", url).groups(1)[0]
+			except:
+				pass
+
+		if re.match("(http\:\/\/|https\:\/\/)?(www\.)?redd\.it", url) and len(url) < 23:
+			return url
+		#End special case
+
 		APIURL = "https://api-ssl.bitly.com"
 
 		#Encode url
