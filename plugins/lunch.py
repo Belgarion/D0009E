@@ -8,7 +8,7 @@ import re
 class Lunch(PluginBase):
 	def __init__(self, bot):
 		bot.registerCommand("!lunch", self.handleLunch)
-		bot.addHelp("lunch", "!lunch resturang (stuk,unik,centrum,husmans,aurorum,rawdeli,dazhong)")
+		bot.addHelp("lunch", "!lunch resturang (stuk,unik,centrum,husmans,aurorum,hockey,dazhong)")
 
 	def cleanHTML(self, text):
 		# Finicky characters
@@ -23,8 +23,15 @@ class Lunch(PluginBase):
 
 		# Other finicky characters
 		text = text.replace("&nbsp;"," ")
+		text = text.replace("&egrave;","á")
 		text = text.replace("&egrave;","é")
 		text = text.replace("&eacute;","é")
+		text = text.replace("&aring;","å")
+		text = text.replace("&auml;","ä")
+		text = text.replace("&ouml;","ö")
+		text = text.replace("&Aring;","Å")
+		text = text.replace("&Auml;","Ä")
+		text = text.replace("&Ouml;","Ö")
 		text = text.replace("\n \n","")
 		text = text.replace("&ldquo;","\"")
 		text = text.replace("&rdquo;","\"")
@@ -68,8 +75,8 @@ class Lunch(PluginBase):
 			return self.getLunchTeknikensHus(day)
 		elif place.lower() == "aurorum":
 			return self.getLunchAurorum(day)
-		elif place.lower() == "rawdeli":
-			return self.getLunchRawDeli(day)
+		elif place.lower() == "hockey":
+			return self.getLunchHockey(day)
 		elif place.lower() == "dazhong":
 			return self.getLunchDazhong()
 
@@ -131,31 +138,12 @@ class Lunch(PluginBase):
 	def getLunchAurorum(self, day):
 		return "Aurorum " + self.getHittaLunchen(5, day)
 
-	# TODO: Fold this into getHittaLunchen (these dudes use the <description> field for 95% of their info.)
-	def getLunchRawDeli(self, day):
-		week = ".."
-		options = ""
-		try:
-			f = urllib.request.urlopen("http://www.hittalunchen.se/Access/Meny.aspx?companyID=82&amp;css=unik&amp;showHeader=1")
-			data = f.read()
-			dagdish =  re.search("""<div class="day"><span class="name">"""+day+"""</span>(.*?)<div class="always">""",data,re.DOTALL | re.MULTILINE).groups(1)[0]
-			week = re.search(""" <div class="lunchMenyHeader">Lunchmeny vecka (..)</div>""",data).groups(0)[0]
-			dishName = re.findall("""<div class="title">(.*)</div>""",dagdish)
-			dishDesc = re.findall("""<div class="description">(.*)</div>""",dagdish)
-			dishPrice = re.findall("""<div class="price">(.*)</div>""",dagdish)
-			for i in range(len(dishName)):
-				options += "\n-%s- %s %s" % (dishName[i],"\n"+dishDesc[i].replace("<br /> ","\n").replace(" <br />","\n").replace("<br />","\n"),dishPrice[i])
-			f.close()
-		except:
-			return "Error"
-		return ["Trasigt mycket output, klaga på yugge", "RAW DELI: %s v%s:" % (day, week)] + options.split("\n")
-
 	def getLunchCentrum(self, day):
 		week = ".."
 		day = day.split(" ")[0]
 		try:
 			f = urllib.request.urlopen("http://www.amica.se/centrumrestaurangen")
-			data = f.read()
+			data = f.read().decode('utf-8')
 			meny = re.search("""<h2>Centrumrestaurangen LTU<br /></h2>(.*?)<div class="boxFoot">""",data,re.DOTALL | re.MULTILINE)
 			menyData = meny.groups(1)[0].replace("&aring;","å").replace("&amp;","&").replace("&auml;","ä").replace("&ouml;","ö")
 
@@ -186,6 +174,25 @@ class Lunch(PluginBase):
 			return "Error"
 
 		return ["[Centrumresturangen: %s v.%s] " % (day, week)] + out.split("\n")
+
+	def getLunchHockey(self, day):
+		week = ".."
+		day = day.split(" ")[0]
+		try:
+			f = urllib.request.urlopen("http://www.luleahockey.se/mat-event/lunchbuffe")
+			data = f.read().decode('utf-8')
+			data = self.cleanHTML(data)
+
+			menu = re.search("Luleå Hockeys Lunchbuffé v ([0-9]+).*?div\>",data, re.DOTALL | re.MULTILINE)
+			week = menu.group(1)
+			dayMenu = re.search(day+".*?\<\/p\>",menu.group(0))
+			foodItems = re.findall("- (.*?)[ ]*\<",dayMenu.group(0))
+
+			terms = re.search("Pris och innehåll.*?\<p\>(.*?)\<\/p\>",data, re.DOTALL | re.MULTILINE)
+		except:
+			return "Error"
+
+		return [("[Luleå Hockey Restaurang %s v.%s]" %(day,week)), " || ".join(foodItems) , terms.group(1)]
 
 	def getLunchTeknikensHus(self, day):
 		try:
