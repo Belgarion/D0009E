@@ -322,14 +322,24 @@ class Bot:
 					if nick in i.names:
 						i.names.remove(nick)
 						i.names.append(newnick)
+			elif command.upper() == "!RELOAD" and args == "":
+				if target.upper() == self.nick.upper():
+					target = source.split("!")[0]
+				if not source in self.authorized_users:
+					self.sendMessage("PRIVMSG", target,
+							"reload: Access denied")
+					continue
 
+				print("Reloading")
+				self.loadPlugins()
+				self.sendMessage("PRIVMSG", target, "reload successful")
 			elif action.upper() == "PRIVMSG":
 				if target.upper() == self.nick.upper():
 					if message.upper() == "\001VERSION\001":
 						nick = source.split("!")[0].lstrip(":")
 						if nick[0] == ":": nick = nick[1:]
 						self.sendMessage("NOTICE", nick,
-							"\001VERSION Python\001")
+							"\001VERSION En bot i sina bästa år\001")
 					elif message.upper() == "\001TIME\001":
 						nick = source.split("!")[0].lstrip(":")
 						self.sendMessage("NOTICE", nick,
@@ -361,17 +371,6 @@ class Bot:
 				elif target.upper() in self.channels:
 					chanstats = self.channels[target.upper()]
 					chanstats.lastMessage = time.time()
-
-					if command.upper() == "!RELOAD":
-						if not source in self.authorized_users:
-							self.sendMessage("PRIVMSG", target,
-									"reload: Access denied")
-							continue
-
-						print("Reloading")
-						self.loadPlugins()
-						self.sendMessage("PRIVMSG", target, "reload successful")
-						continue
 
 					try:
 						if command in self.commands:

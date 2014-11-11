@@ -215,7 +215,7 @@ class Talking(PluginBase):
 			return
 
 		if len(params) > 0:
-			nick = params[0]
+			nick = params[0].replace("_", " ")
 		bot.sendMessage("PRIVMSG", channel, self.subSentence(bot, channel,
 			("Det går ett rykte i dataettan att %s har %%%%VERB3%%%%." % (nick))))
 

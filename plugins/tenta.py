@@ -18,7 +18,7 @@ class Tenta(PluginBase):
 			url = "https://portal.student.ltu.se/tentapub/plokal.php?" \
 				+ "villkor=+and+t_schema.kurs%%3D'%s'&sortering=1" % (course)
 			f = urllib.request.urlopen(url)
-			data = f.read()
+			data = f.read().decode('utf-8')
 			data = data.replace("&nbsp;", " ")
 			data = data.replace("\n", "")
 			data = data.replace("\r", "")
