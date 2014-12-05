@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 from .pluginbase import PluginBase
 
+import traceback
+
 import urllib.request, urllib.error, urllib.parse
 import re
 
@@ -8,6 +10,8 @@ import io
 import struct
 import html.parser
 import string
+import encodings
+import encodings.idna
 
 def simpleencode(str):
 	out = ""
@@ -111,13 +115,14 @@ class Title(PluginBase):
 			except:
 				pass
 
-		if re.match("(http\:\/\/|https\:\/\/)?(www\.)?redd\.it", url) and len(url) < 23:
+		if re.match("(http\:\/\/|https\:\/\/)?(www\.)?(redd\.it|öä.se)", url) and len(url) < 23:
 			return url
 		#End special case
 
 		APIURL = "https://api-ssl.bitly.com"
 
 		#Encode url
+
 		url = url.replace("!","%21")
 		url = url.replace("#","%23")
 		url = url.replace("$","%24")
@@ -136,6 +141,14 @@ class Title(PluginBase):
 		url = url.replace("@","%40")
 		url = url.replace("[","%5B")
 		url = url.replace("]","%5D")
+		url = url.replace("Å","%C5")
+		url = url.replace("Ä","%C4")
+		url = url.replace("Ö","%D6")
+		url = url.replace("å","%E5")
+		url = url.replace("ä","%E4")
+		url = url.replace("ö","%F6")
+
+		#url = urllib.parse.urlencode(url)
 
 		#Create String
 		GETURL = APIURL + "/v3/shorten?"
@@ -148,12 +161,22 @@ class Title(PluginBase):
 			shortUrl = re.findall("\"url\": \"(.*?)\"",data)[0].replace("\/","/")
 			return shortUrl
 		except:
+			traceback.print_exc()
 			return ""
 
 	def getTitle(self, url):
 		try:
 			if url[0:7] != "http://" and url[0:8] != "https://" : url = "http://" + url
 			shortUrl = self.shortenURL(url)[7:]
+			proto, empty, host, path = url.split("/")
+			host_parts = host.split(".")
+			host = ""
+			for part in host_parts:
+				part = encodings.idna.nameprep(part)
+				part = encodings.idna.ToASCII(part)
+				host = ((host + ".") if host else "") + part.decode('utf-8')
+			url = proto + "//" + host + "/" + path
+			print(url)
 
 			headers = { 'User-Agent' : 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.8; rv:24.0) Gecko/20100101 Firefox/24.0' }
 			req = urllib.request.Request(url,None,headers)
