@@ -168,14 +168,14 @@ class Title(PluginBase):
 		try:
 			if url[0:7] != "http://" and url[0:8] != "https://" : url = "http://" + url
 			shortUrl = self.shortenURL(url)[7:]
-			proto, empty, host, path = url.split("/")
+			proto, empty, host, *path = url.split("/")
 			host_parts = host.split(".")
 			host = ""
 			for part in host_parts:
 				part = encodings.idna.nameprep(part)
 				part = encodings.idna.ToASCII(part)
 				host = ((host + ".") if host else "") + part.decode('utf-8')
-			url = proto + "//" + host + "/" + path
+			url = proto + "//" + host + "/" + "/".join(path)
 			print(url)
 
 			headers = { 'User-Agent' : 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.8; rv:24.0) Gecko/20100101 Firefox/24.0' }
