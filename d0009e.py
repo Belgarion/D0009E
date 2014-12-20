@@ -236,9 +236,16 @@ class Bot:
 				m = "Error: Message too long"
 
 			if m:
+				# Julpynt
+				tm = time.localtime()
+				if action == "PRIVMSG" and tm.tm_mon == 12:
+					colorstr = '\x0f\x03%02d'
+					m = (colorstr % (random.randint(0,15))) + m
 				buf = "%s %s :%s\r\n" % (action, target, m)
 			else:
 				buf = "%s %s\r\n" % (action, target)
+
+
 
 			print("[031m>>[0m", buf, end=' ')
 			while buf:
