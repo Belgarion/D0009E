@@ -27,7 +27,14 @@ class Temp(PluginBase):
 					break
 			return
 
+		# Use electricman instead of marge:
+		conn = http.client.HTTPConnection("satellite.electricman.se")
+		conn.request("GET", "/temp_ute.txt")
+		resp = conn.getresponse()
+		data = resp.read().decode('utf-8')
+		bot.sendMessage("PRIVMSG", channel, "Temperature: %s" % (data))
 
+		"""
 		conn = http.client.HTTPConnection("marge.campus.ltu.se")
 		conn.request("GET", "/temp/")
 		resp = conn.getresponse()
@@ -41,6 +48,7 @@ class Temp(PluginBase):
 
 		bot.sendMessage("PRIVMSG", channel, "Temperature: %s" %
 				(temperature))
+		"""
 
 	def specialtemp(self, bot, channel, params):
 		temp = None

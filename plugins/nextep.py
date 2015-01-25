@@ -15,7 +15,7 @@ class NextEp(PluginBase):
 		try:
 			f = urllib.request.urlopen(
 				"http://services.tvrage.com/tools/quickinfo.php?show=%s" % show)
-			data = f.read()
+			data = f.read().decode('utf-8')
 			f.close()
 		except urllib2.HTTPException as e:
 			return e

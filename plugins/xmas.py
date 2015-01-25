@@ -29,9 +29,12 @@ class Xmas(PluginBase):
 
 			for chan in list(bot.channels.keys()):
 				talking.talk(bot, chan, [])
-				bot.sendMessage("PRIVMSG", chan,
+				if diff.days > 0:
+					bot.sendMessage("PRIVMSG", chan,
 						"och btw, det är %s dagar kvar till jul" % \
 								(diff.days))
+				else:
+					bot.sendMessage("PRIVMSG", chan, "GOD JUL")
 
 
 mainclass = Xmas
