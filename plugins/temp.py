@@ -28,8 +28,8 @@ class Temp(PluginBase):
 			return
 
 		# Use electricman instead of marge:
-		conn = http.client.HTTPConnection("satellite.electricman.se")
-		conn.request("GET", "/temp_ute.txt")
+		conn = http.client.HTTPConnection("temperatur.electricman.se")
+		conn.request("GET", "/temp_lulea.php")
 		resp = conn.getresponse()
 		data = resp.read().decode('utf-8')
 		bot.sendMessage("PRIVMSG", channel, "Temperature: %s" % (data))
