@@ -70,13 +70,21 @@ class Talking(PluginBase):
 			else:
 				self.markov_cache[key] = [words[-1]]
 
-	def markov_generate_text(self, size=25):
+	def markov_generate_text(self, size=10):
 		key = random.choice(list(self.markov_cache.keys()))
 		print(key)
 		gen_words = []
 		for i in range(size):
 			gen_words.append(key[0])
 			key = list(key[1:]) + [random.choice(self.markov_cache[tuple(key)])]
+		count = size
+		while True:
+			gen_words.append(key[0])
+			print(key[0][-1])
+			if key[0][-1] in ".'\",;:" or count > 25:
+				break
+			key = list(key[1:]) + [random.choice(self.markov_cache[tuple(key)])]
+			count += 1
 		return ' '.join(gen_words)
 
 	def talk_markov(self, bot, channel, params):
