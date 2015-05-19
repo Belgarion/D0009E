@@ -192,7 +192,7 @@ class Talking(PluginBase):
 				"%%DEFINITION1%%": (self.definitions, 0),
 				"%%LAND%%": (self.land, -1),
 				"%%YRKE%%": (self.yrke, -1),
-				"%%NICK%%": (bot.channels[channel.upper()].names, -1)}
+				"%%NICK%%": ([x.decode('utf-8') for x in bot.channels[channel.upper()].names], -1)}
 
 		for sub in substitutes:
 			while sub in sentence:

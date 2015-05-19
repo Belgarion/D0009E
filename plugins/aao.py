@@ -4,15 +4,13 @@ from .pluginbase import PluginBase
 
 class AAO(PluginBase):
 	def __init__(self, bot):
-		bot.registerCommand("!åäö", self.utf8)
-		bot.registerCommand("!\xe5\xe4\xf6", self.latin1)
+		bot.registerByteCommand("!åäö".encode(), self.utf8)
+		bot.registerByteCommand(b"!\xe5\xe4\xf6", self.latin1)
 
 	def utf8(self, bot, channel, params):
-		#bot.sendMessage("PRIVMSG", channel, "UTF-8 :)")
-		bot.sendMessage("PRIVMSG", channel, "Trasig i python3 :(")
+		bot.sendByteMessage(b"PRIVMSG", channel, b"UTF-8 :)")
 
 	def latin1(self, bot, channel, params):
-		#bot.sendMessage("PRIVMSG", channel, "Latin1 :(")
-		bot.sendMessage("PRIVMSG", channel, "Trasig i python3 :(")
+		bot.sendByteMessage(b"PRIVMSG", channel, b"Latin1 :(")
 
 mainclass = AAO
