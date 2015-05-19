@@ -72,7 +72,6 @@ class Talking(PluginBase):
 
 	def markov_generate_text(self, size=10):
 		key = random.choice(list(self.markov_cache.keys()))
-		print(key)
 		gen_words = []
 		for i in range(size):
 			gen_words.append(key[0])
