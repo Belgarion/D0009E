@@ -6,6 +6,7 @@ import random
 import re
 import json
 import traceback
+import urllib.parse
 
 class Temp(PluginBase):
 	def __init__(self, bot):
@@ -101,7 +102,7 @@ class Temp(PluginBase):
 
 		try:
 			conn = http.client.HTTPConnection("api.openweathermap.org")
-			conn.request("GET", "/data/2.5/weather?mode=json&units=metric&q=%s" % params[0])
+			conn.request("GET", "/data/2.5/weather?mode=json&units=metric&q=%s" % urllib.parse.quote(" ".join(params)))
 			resp = conn.getresponse()
 			data = resp.read().decode('utf-8')
 
@@ -119,6 +120,7 @@ class Temp(PluginBase):
 					"Temperature in %s: %s degrees Celsius" % \
 							(city, temperature))
 		except Exception as e:
+			traceback.print_exc()
 			print("googleweather failed")
 			return False
 
