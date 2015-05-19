@@ -397,21 +397,33 @@ class Bot:
 					chanstats.lastMessage = time.time()
 
 					try:
+						strcommand = None
+						try:
+							strcommand = command.decode('utf-8')
+						except:
+							pass
+
 						if command in self.byteCommands:
 							_thread.start_new_thread(self.byteCommands[command],
 								(self, target, args))
-						elif command.decode('utf-8') in self.commands:
+						elif strcommand and strcommand in self.commands:
 							strargs = [x.decode('utf-8') for x in args]
-							_thread.start_new_thread(self.commands[command.decode('utf-8')],
+							_thread.start_new_thread(self.commands[strcommand],
 								(self, target.decode('utf-8'), strargs))
 						else:
-							for contentCmd in self.contentCommands:
-								if re.search(contentCmd, message.decode('utf-8')):
-									_thread.start_new_thread(
-											self.contentCommands[contentCmd],
-											(self, target.decode('utf-8'),
-												message.decode('utf-8')))
-									break
+							strmessage = None
+							try:
+								strmessage = message.decode('utf-8')
+							except:
+								pass
+							if strmessage:
+								for contentCmd in self.contentCommands:
+									if re.search(contentCmd, strmessage):
+										_thread.start_new_thread(
+												self.contentCommands[contentCmd],
+												(self, target.decode('utf-8'),
+													strmessage))
+										break
 
 					except Exception as e:
 						traceback.print_exc()
