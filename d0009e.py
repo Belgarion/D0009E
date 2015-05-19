@@ -27,7 +27,7 @@ class Bot:
 		self.names_cur_channel = None
 
 		self.sock = None
-		self.msg_re = re.compile('^(:([^ ]+))? *([^ ]+) +:?([^ ]*) *:?(.*)$')
+		self.msg_re = re.compile(b'^(:([^ ]+))? *([^ ]+) +:?([^ ]*) *:?(.*)$')
 
 		self.joined = False
 		self.commands = {}
@@ -44,6 +44,7 @@ class Bot:
 
 		self.help = {}
 		self.commands = {}
+		self.byteCommands = {}
 		self.contentCommands = {}
 		self.queryCommands = {}
 		self.plugins = []
@@ -196,6 +197,9 @@ class Bot:
 	def registerCommand(self, command, func):
 		self.commands[command] = func
 
+	def registerByteCommand(self, command, func):
+		self.byteCommands[command] = func
+
 	def registerContentCommand(self, regex, func):
 		self.contentCommands[regex] = func
 
@@ -257,6 +261,10 @@ class Bot:
 					print("Failed to send message")
 					self.recvThread.connected = False
 
+	def sendByteMessage(self, action, target, message = b""):
+		self.sendMessage(action.decode('utf-8'), target.decode('utf-8'),
+				message.decode('utf-8'))
+
 	def handleCommands(self):
 		while self.recvThread.commands != []:
 			line = self.recvThread.commands.pop()
@@ -267,92 +275,96 @@ class Bot:
 
 			command = message
 			args = ""
-			if " " in message:
+			if b" " in message:
 				command = message.split()[0].lower()
 				args = message.split()[1:]
 
-			if action.upper() == "001" and not self.joined:
+			if action.upper() == b"001" and not self.joined:
 				for chan in self.chans:
 					self.sendMessage("JOIN", chan)
 				time.sleep(0.5)
 				self.joined = True
-			elif action.upper() == "PING":
+			elif action.upper() == b"PING":
 				self.sendMessage("PONG", target)
-			elif action.upper() == "ERROR":
+			elif action.upper() == b"ERROR":
 				# Reconnect
 				time.sleep(30)
 				self.connect()
-			elif action.upper() == "353": # begin names
-				m = re.search('. ([^ ]+) :?(.+)$', message)
+			elif action.upper() == b"353": # begin names
+				m = re.search(b'. ([^ ]+) :?(.+)$', message)
 
 				if not m:
 					continue
 
 				channel, names = m.group(1, 2)
 				if self.names_cur_channel != channel:
-					self.channels[channel.upper()].names = []
+					self.channels[channel.upper().decode('utf-8')].names = []
 					self.names_cur_channel = channel
 
 				# Remove prefixes
-				names = re.sub(r'[^0-9a-zA-Z\\^\[\]^_`{|} -]', '',  names)
+				names = re.sub(br'[^0-9a-zA-Z\\^\[\]^_`{|} -]', b'',  names)
 
-				self.channels[channel.upper()].names.extend(names.split())
+				self.channels[channel.upper().decode('utf-8')].names.extend(names.split())
 
-			elif action.upper() == "366": # end names
+			elif action.upper() == b"366": # end names
 				self.names_cur_channel = None
 
-			elif action.upper() == "JOIN":
-				nick = source.split("!")[0]
-				if not nick in self.channels[target.upper()].names:
-					self.channels[target.upper()].names.append(nick)
+			elif action.upper() == b"JOIN":
+				nick = source.split(b"!")[0]
+				if not nick in self.channels[target.upper().decode('utf-8')].names:
+					self.channels[target.upper().decode('utf-8')].names.append(nick)
 
-			elif action.upper() == "PART":
-				nick = source.split("!")[0]
-				self.channels[target.upper()].names.remove(nick)
+			elif action.upper() == b"PART":
+				nick = source.split(b"!")[0]
+				self.channels[target.upper().decode('utf-8')].names.remove(nick)
 
-			elif action.upper() == "QUIT":
-				nick = source.split("!")[0]
+			elif action.upper() == b"QUIT":
+				nick = source.split(b"!")[0]
 
 				for i in list(self.channels.values()):
 					if nick in i.names:
 						i.names.remove(nick)
 
-			elif action.upper() == "KICK":
+			elif action.upper() == b"KICK":
 				nick = message.split()[0]
-				self.channels[target.upper()].names.remove(nick)
+				self.channels[target.upper().decode('utf-8')].names.remove(nick)
 
-			elif action.upper() == "NICK":
-				nick = source.split("!")[0]
+			elif action.upper() == b"NICK":
+				nick = source.split(b"!")[0]
 				newnick = target
 
 				for i in list(self.channels.values()):
 					if nick in i.names:
 						i.names.remove(nick)
 						i.names.append(newnick)
-			elif command.upper() == "!RELOAD" and args == "":
+			elif command.upper() == b"!RELOAD" and args == "":
 				if target.upper() == self.nick.upper():
-					target = source.split("!")[0]
+					target = source.split(b"!")[0]
 				if not source in self.authorized_users:
-					self.sendMessage("PRIVMSG", target,
-							"reload: Access denied")
+					self.sendByteMessage(b"PRIVMSG", target,
+							b"reload: Access denied")
 					continue
 
 				print("Reloading")
 				self.loadPlugins()
-				self.sendMessage("PRIVMSG", target, "reload successful")
-			elif action.upper() == "PRIVMSG":
-				if target.upper() == self.nick.upper():
-					if message.upper() == "\001VERSION\001":
-						nick = source.split("!")[0].lstrip(":")
-						if nick[0] == ":": nick = nick[1:]
-						self.sendMessage("NOTICE", nick,
-							"\001VERSION En bot i sina bästa år\001")
-					elif message.upper() == "\001TIME\001":
-						nick = source.split("!")[0].lstrip(":")
-						self.sendMessage("NOTICE", nick,
-							"\001Time 13:37 - The time of leet\001")
-					elif command.upper() == "AUTH":
-						nick, userhost = source.split("!")
+				self.sendByteMessage(b"PRIVMSG", target, b"reload successful")
+			elif action.upper() == b"PRIVMSG":
+				if target.upper() == self.nick.encode().upper():
+					if message.upper() == b"\001VERSION\001":
+						nick = source.split(b"!")[0].lstrip(b":")
+						if nick[0] == b":": nick = nick[1:]
+						self.sendByteMessage(b"NOTICE", nick,
+							"\001VERSION En bot i sina bästa år\001".encode())
+					elif message.upper() == b"\001TIME\001":
+						nick = source.split(b"!")[0].lstrip(b":")
+						self.sendByteMessage(b"NOTICE", nick,
+							"\001Time 13:37 - The time of leet\001".encode())
+					elif command.upper() == b"AUTH":
+						nick, userhost = source.split(b"!")
+						nick = nick.decode('utf-8')
+						if len(args) >= 2:
+							args[0] = args[0].decode('utf-8')
+							args[1] = args[1].decode('utf-8')
 
 						if len(args) >= 2 and (args[0].lower(), args[1]) in self.users:
 							self.authorized_users.append(source)
@@ -360,40 +372,50 @@ class Bot:
 							self.sendMessage("NOTICE", nick,
 									"You are now authenticated as %s" % (args[0]))
 						else:
-							self.sendMessage("NOTICE", nick,
+							self.sendMessage(b"NOTICE", nick,
 									"Wrong username or password")
 					else:
-						nick, userhost = source.split("!")
+						nick, userhost = source.split(b"!")
 						try:
 							if command in self.queryCommands:
+								strargs = [x.decode('utf-8') for x in args]
 								_thread.start_new_thread(self.queryCommands[command],
+									(self, nick.decode('utf-8'), args))
+							if command in self.byteCommands:
+								_thread.start_new_thread(self.byteCommands[command],
 									(self, nick, args))
 							if command in self.commands:
-								_thread.start_new_thread(self.commands[command],
-									(self, nick, args))
+								strargs = [x.decode('utf-8') for x in args]
+								_thread.start_new_thread(self.commands[command.decode('utf-8')],
+									(self, nick.decode('utf-8'), strargs))
 						except Exception as e:
 							traceback.print_exc()
-							self.sendMessage("PRIVMSG", target, "Error!!")
+							self.sendByteMessage(b"PRIVMSG", target, b"Error!!")
 
-				elif target.upper() in self.channels:
-					chanstats = self.channels[target.upper()]
+				elif target.upper().decode('utf-8') in self.channels:
+					chanstats = self.channels[target.upper().decode('utf-8')]
 					chanstats.lastMessage = time.time()
 
 					try:
-						if command in self.commands:
-							_thread.start_new_thread(self.commands[command],
+						if command in self.byteCommands:
+							_thread.start_new_thread(self.byteCommands[command],
 								(self, target, args))
+						elif command.decode('utf-8') in self.commands:
+							strargs = [x.decode('utf-8') for x in args]
+							_thread.start_new_thread(self.commands[command.decode('utf-8')],
+								(self, target.decode('utf-8'), strargs))
 						else:
 							for contentCmd in self.contentCommands:
-								if re.search(contentCmd, message):
+								if re.search(contentCmd, message.decode('utf-8')):
 									_thread.start_new_thread(
 											self.contentCommands[contentCmd],
-											(self, target, message))
+											(self, target.decode('utf-8'),
+												message.decode('utf-8')))
 									break
 
 					except Exception as e:
 						traceback.print_exc()
-						self.sendMessage("PRIVMSG", target, "Error!!")
+						self.sendByteMessage(b"PRIVMSG", target, b"Error!!")
 
 class RecvThread(threading.Thread):
 	def __init__(self, sock):
@@ -405,7 +427,7 @@ class RecvThread(threading.Thread):
 		threading.Thread.__init__(self)
 
 	def run(self):
-		buffer = ""
+		buffer = b""
 		socket.setdefaulttimeout(30)
 		endpoint_notconnected_count = 0
 		while not self.quit:
@@ -416,9 +438,9 @@ class RecvThread(threading.Thread):
 				self.connected = False
 				continue
 			try:
-				buffer += self.sock.recv(1024).decode("utf-8")
-				commands = buffer.split("\r\n")[:-1]
-				buffer = buffer[buffer.rfind("\r\n")+2:]
+				buffer += self.sock.recv(1024)
+				commands = buffer.split(b"\r\n")[:-1]
+				buffer = buffer[buffer.rfind(b"\r\n")+2:]
 				for command in commands:
 					self.addCommand(command)
 				endpoint_notconnected_count = 0
