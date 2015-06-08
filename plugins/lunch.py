@@ -2,8 +2,10 @@
 from .pluginbase import PluginBase
 
 import urllib.request, urllib.error, urllib.parse
+import html.parser
 import time
 import re
+import traceback
 
 class Lunch(PluginBase):
 	def __init__(self, bot):
@@ -12,14 +14,14 @@ class Lunch(PluginBase):
 
 	def cleanHTML(self, text):
 		# Finicky characters
-		text = text.replace("&#233;", "é");
-		text = text.replace("&#201;", "é");
-		text = text.replace("&#229;", "å");
-		text = text.replace("&#197;", "Å");
-		text = text.replace("&#228;", "ä");
-		text = text.replace("&#196;", "Ä");
-		text = text.replace("&#246;", "ö");
-		text = text.replace("&#214;", "Ö");
+		text = text.replace("&#233;", "é")
+		text = text.replace("&#201;", "é")
+		text = text.replace("&#229;", "å")
+		text = text.replace("&#197;", "Å")
+		text = text.replace("&#228;", "ä")
+		text = text.replace("&#196;", "Ä")
+		text = text.replace("&#246;", "ö")
+		text = text.replace("&#214;", "Ö")
 
 		# Other finicky characters
 		text = text.replace("&nbsp;"," ")
@@ -32,15 +34,22 @@ class Lunch(PluginBase):
 		text = text.replace("&Aring;","Å")
 		text = text.replace("&Auml;","Ä")
 		text = text.replace("&Ouml;","Ö")
-		text = text.replace("\n \n","")
 		text = text.replace("&ldquo;","\"")
 		text = text.replace("&rdquo;","\"")
+		text = text.replace("\n \n","")
 		text = text.replace("\n  ","\n")
 		text = text.replace("\r\n","")
 
+		try:
+			h = html.parser.HTMLParser()
+			text = h.unescape(text)
+		except:
+			traceback.print_exc()
+			pass
+
 
 		# Markup
-		text = re.sub("<br ?/?>", " ", text, re.IGNORECASE);
+		text = re.sub("<br ?/?>", " ", text, re.IGNORECASE)
 		text = re.sub("</?strong>","", text, re.IGNORECASE)
 		text = re.sub("</?p>","", text, re.IGNORECASE)
 
