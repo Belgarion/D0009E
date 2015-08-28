@@ -59,6 +59,7 @@ class Temp(PluginBase):
 			conn = http.client.HTTPConnection("graphs.se")
 			conn.request("GET", "/serverrum.txt")
 			resp = conn.getresponse()
+			conn.close()
 			data = resp.read().decode('utf-8')
 			temp = data
 
@@ -75,6 +76,7 @@ class Temp(PluginBase):
 			conn.request("GET", "/%s" % params[0].lower().replace("å","a").
 					replace("ä", "a").replace("ö", "o"))
 			resp = conn.getresponse()
+			conn.close()
 			data = resp.read().decode('iso-8859-1')
 
 			lines = data.split("\n")
@@ -105,6 +107,7 @@ class Temp(PluginBase):
 			conn.request("GET", "/data/2.5/weather?mode=json&units=metric&q=%s" % urllib.parse.quote(" ".join(params)))
 			resp = conn.getresponse()
 			data = resp.read().decode('utf-8')
+			conn.close()
 
 			decoded_openweathermap = json.loads(data)
 			city = decoded_openweathermap['name']
@@ -129,7 +132,7 @@ class Temp(PluginBase):
 	def errortemp(self, bot, channel, params):
 		bot.sendMessage("PRIVMSG", channel,
 				"Error getting temperature in %s, but I'm guessing it's"
-				" %s degrees Celcius" % (params[0], random.randint(-40,60)))
+				" %s degrees Celcius" % (" ".join(params), random.randint(-40,60)))
 		return True
 
 mainclass = Temp

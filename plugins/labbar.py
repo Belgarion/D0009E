@@ -10,16 +10,19 @@ class DictionaryDict:
 		self.dict = {}
 
 	def insert(self, word, description):
+		word = word.upper()
 		self.dict[word] = description
 		return "Inserted \"%s\" into dictionary" % word
 
 	def lookup(self, word):
+		word = word.upper()
 		if word in self.dict:
 			return "Description for %s: %s" % (word, self.dict[word])
 		else:
 			return "Word does not exist in dictionary"
 
 	def delete(self, word):
+		word = word.upper()
 		if word in self.dict:
 			self.dict.pop(word)
 			return "Removed \"%s\" from dictionary" % word
