@@ -156,8 +156,10 @@ class Lunch(PluginBase):
 			meny = re.search("""<div class="ContentArea OrangeHeader">(.*?)</div>""",data,re.DOTALL | re.MULTILINE)
 			menyData = meny.groups(1)[0].replace("&aring;","å").replace("&amp;","&").replace("&auml;","ä").replace("&ouml;","ö")
 
-			if day != "Fredag": menyDay = re.findall("""<h2>.*?"""+day+""".*?</h2>(.*?)<h2>""",menyData,re.DOTALL | re.MULTILINE)
-			else: menyDay = re.findall("""<h2>.*?Fredag.*?</h2>(.*)""",menyData,re.DOTALL | re.MULTILINE)
+			if day != "Fredag":
+				menyDay = re.findall("""<p>.*?"""+day+""".*?</p>(.*?)<p>&nbsp;</p>""", menyData, re.DOTALL | re.MULTILINE)
+			else:
+				menyDay = re.findall("""<p>.*?Fredag.*?</p>(.*)""", menyData, re.DOTALL | re.MULTILINE)
 
 			dishes = menyDay[0]
 			dishes = dishes.replace("\r\n<p>","\n")
@@ -180,6 +182,7 @@ class Lunch(PluginBase):
 				out += i
 			f.close()
 		except:
+			traceback.print_exc()
 			return "Error"
 
 		return ["[Centrumresturangen: %s v.%s] " % (day, week)] + out.split("\n")
