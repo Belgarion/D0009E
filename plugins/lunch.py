@@ -119,7 +119,7 @@ class Lunch(PluginBase):
 
 		return buf
 	def getLunchDazhong(self):
-		return "Dazhong: Vi serverar åtta varmrätter, salladsbuffé och nybakat bröd varje dag. Kaffe med Friterade bananer och glass till efterrätt. 75:-"
+		return "Dazhong: Vi serverar åtta varmrätter, salladsbuffé och nybakat bröd varje dag. Kaffe med Friterade bananer och glass till efterrätt. 95:-"
 
 	def getHittaLunchen(self, companyID, day):
 		print("Checking day " + day)
@@ -153,7 +153,7 @@ class Lunch(PluginBase):
 		try:
 			f = urllib.request.urlopen("http://www.amica.se/centrumrestaurangen")
 			data = f.read().decode('utf-8')
-			meny = re.search("""<h2>Centrumrestaurangen LTU<br /></h2>(.*?)<div class="boxFoot">""",data,re.DOTALL | re.MULTILINE)
+			meny = re.search("""<div class="ContentArea OrangeHeader">(.*?)</div>""",data,re.DOTALL | re.MULTILINE)
 			menyData = meny.groups(1)[0].replace("&aring;","å").replace("&amp;","&").replace("&auml;","ä").replace("&ouml;","ö")
 
 			if day != "Fredag": menyDay = re.findall("""<h2>.*?"""+day+""".*?</h2>(.*?)<h2>""",menyData,re.DOTALL | re.MULTILINE)
