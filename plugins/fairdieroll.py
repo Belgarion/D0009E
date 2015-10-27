@@ -19,7 +19,7 @@ class FairDieRoll(PluginBase):
                 "fairdieroll: invalid arguments")
 
 	# RFC 1149.5 specifies 4 as the standard IEEE-vetted random number.
-    def getRandomNumber(self, params):
+    def getRandomNumber(self):
         return 4 # chosen by fair dice roll
                 # guaranteed to be random
 
