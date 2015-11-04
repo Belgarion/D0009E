@@ -190,6 +190,9 @@ class Title(PluginBase):
 			print("URL:",url)
 			while location != None:
 				print("Location: " + location)
+				if not (location.startswith("http://") \
+						or location.startswith("https://")):
+						location = proto + "//" + host + "/" + location
 				req=urllib.request.Request(simpleencode(location),None, headers)
 				f.close()
 				f = opener.open(req)
