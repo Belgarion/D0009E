@@ -18,3 +18,6 @@ channels = #channel1 #channel2
 
 [plugins.title]
 apikey = login=username&apiKey=apikey
+
+[plugins.temp]
+apikey = hej

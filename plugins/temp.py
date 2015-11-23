@@ -15,6 +15,9 @@ class Temp(PluginBase):
 		bot.registerCommand("!temperature", self.handleTemp)
 		bot.addHelp("temp", "Usage: !temp [location]")
 
+	def handleNewConfig(self):
+		self.apikey = self.getConfig("apikey")
+
 	def handleTemp(self, bot, channel, params):
 		temperature = -273.15
 
@@ -22,7 +25,7 @@ class Temp(PluginBase):
 			city = ""
 			temperature = ""
 
-			for f in [self.specialtemp, self.temperaturnu, \
+			for f in [self.ludd, self.specialtemp, self.temperaturnu, \
 					self.googleweather, self.errortemp]:
 				if f(bot, channel, params):
 					break
@@ -59,8 +62,8 @@ class Temp(PluginBase):
 			conn = http.client.HTTPConnection("graphs.se")
 			conn.request("GET", "/serverrum.txt")
 			resp = conn.getresponse()
-			conn.close()
 			data = resp.read().decode('utf-8')
+			conn.close()
 			temp = data
 
 		if temp:
@@ -76,8 +79,8 @@ class Temp(PluginBase):
 			conn.request("GET", "/%s" % params[0].lower().replace("å","a").
 					replace("ä", "a").replace("ö", "o"))
 			resp = conn.getresponse()
-			conn.close()
 			data = resp.read().decode('iso-8859-1')
+			conn.close()
 
 			lines = data.split("\n")
 			for line in lines:
@@ -104,11 +107,12 @@ class Temp(PluginBase):
 
 		try:
 			conn = http.client.HTTPConnection("api.openweathermap.org")
-			conn.request("GET", "/data/2.5/weather?mode=json&units=metric&q=%s" % urllib.parse.quote(" ".join(params)))
+			conn.request("GET", "/data/2.5/weather?mode=json&units=metric&q=%s&APPID=%s" % (urllib.parse.quote(" ".join(params)), self.apikey))
 			resp = conn.getresponse()
 			data = resp.read().decode('utf-8')
 			conn.close()
 
+			print(data)
 			decoded_openweathermap = json.loads(data)
 			city = decoded_openweathermap['name']
 			temperature = decoded_openweathermap['main']['temp']
@@ -128,6 +132,54 @@ class Temp(PluginBase):
 			return False
 
 		return True
+
+	def ludd(self, bot, channel, params):
+		if params[0] == 'dh1':
+			conn = http.client.HTTPConnection("orac.ludd.ltu.se")
+			conn.request("GET", "/last-dh1")
+			resp = conn.getresponse()
+			data = resp.read().decode('utf-8')
+			conn.close()
+			temp = data
+
+			if temp:
+				bot.sendMessage("PRIVMSG", channel,
+						"Temperature in %s: %s" % (params[0], temp))
+			else:
+				bot.sendMessage("PRIVMSG", channel,
+						"Unable to get temperature in %s", params[0])
+			return True
+		elif params[0] == 'dh2':
+			conn = http.client.HTTPConnection("orac.ludd.ltu.se")
+			conn.request("GET", "/last-dh2")
+			resp = conn.getresponse()
+			data = resp.read().decode('utf-8')
+			conn.close()
+			temp = data
+
+			if temp:
+				bot.sendMessage("PRIVMSG", channel,
+						"Temperature in %s: %s" % (params[0], temp))
+			else:
+				bot.sendMessage("PRIVMSG", channel,
+						"Unable to get temperature in %s", params[0])
+			return True
+		elif params[0] == 'dh2-lc':
+			conn = http.client.HTTPConnection("orac.ludd.ltu.se")
+			conn.request("GET", "/last-dh2-lc")
+			resp = conn.getresponse()
+			data = resp.read().decode('utf-8')
+			conn.close()
+			temp = data
+
+			if temp:
+				bot.sendMessage("PRIVMSG", channel,
+						"Temperature in %s: %s" % (params[0], temp))
+			else:
+				bot.sendMessage("PRIVMSG", channel,
+						"Unable to get temperature in %s", params[0])
+			return True
+		return False
 
 	def errortemp(self, bot, channel, params):
 		bot.sendMessage("PRIVMSG", channel,
