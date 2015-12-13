@@ -183,6 +183,7 @@ class Talking(PluginBase):
 				"%%SUBSTANTIV7%%":(self.substantiv, 7),
 				"%%SUBSTANTIV8%%":(self.substantiv, 8),
 				"%%PRONOMEN%%":(self.pronomen, 0),
+				"%%PREPOSITION%%":(self.prepositioner, 0),
 				"%%VERB%%":(self.verb, 0),
 				"%%VERB1%%":(self.verb, 1),
 				"%%VERB2%%":(self.verb, 2),
