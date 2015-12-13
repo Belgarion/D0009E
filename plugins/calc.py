@@ -15,8 +15,14 @@ class Calc(PluginBase):
 
 		result = None
 		try:
-			result = self.calc("".join(params))
+			expr = "".join(params)
+			if ".__" in expr:
+				result = "NEJ!"
+			else:
+				expr = expr.replace("__", "_DOUBLEUNDERSCORE_")
+				result = self.calc(expr)
 		except Exception as e:
+			traceback.print_exc()
 			result = "Error"
 		bot.sendMessage("PRIVMSG", channel, str(result))
 
