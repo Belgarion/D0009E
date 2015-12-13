@@ -188,6 +188,7 @@ class Talking(PluginBase):
 				"%%VERB2%%":(self.verb, 2),
 				"%%VERB3%%":(self.verb, 3),
 				"%%VERB4%%":(self.verb, 4),
+				"%%ADVERB%%":(self.adverb, 0),
 				"%%DEFINITION1%%": (self.definitions, 0),
 				"%%LAND%%": (self.land, -1),
 				"%%YRKE%%": (self.yrke, -1),
