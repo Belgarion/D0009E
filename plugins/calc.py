@@ -3,6 +3,7 @@ from .pluginbase import PluginBase
 
 import math
 import traceback
+import re
 
 class Calc(PluginBase):
 	def __init__(self, bot):
@@ -16,7 +17,7 @@ class Calc(PluginBase):
 		result = None
 		try:
 			expr = "".join(params)
-			if ".__" in expr:
+			if re.search(r'[^0-9]\.', expr) or re.search(r'\.[^0-9]', expr):
 				result = "NEJ!"
 			else:
 				expr = expr.replace("__", "_DOUBLEUNDERSCORE_")
