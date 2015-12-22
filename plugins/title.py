@@ -109,13 +109,13 @@ class Title(PluginBase):
 	def shortenURL(self, url):
 
 		#This is stupid, but special case because reddit people are terrible
-		if re.match("(http\:\/\/|https\:\/\/)?(www\.)?reddit\.com", url):
+		if re.match("(https?://)?(www\.)?reddit\.com", url):
 			try:
 				return "http://redd.it/"+re.search("comments/(.+?)\/", url).groups(1)[0]
 			except:
 				pass
 
-		if re.match("(http\:\/\/|https\:\/\/)?(www\.)?(redd\.it|öä.se)", url) and len(url) < 23:
+		if re.match("(https?://)?(redd\.it|öä\.se)", url) and len(url) < 23:
 			return url
 		#End special case
 
@@ -167,7 +167,11 @@ class Title(PluginBase):
 	def getTitle(self, url):
 		try:
 			if url[0:7] != "http://" and url[0:8] != "https://" : url = "http://" + url
-			shortUrl = self.shortenURL(url)[7:]
+			shortUrl = self.shortenURL(url)
+			if url[0:8] == "https://": 
+				shortUrl = shortUrl[8:] 
+			else: 
+				shortUrl = shortUrl[7:]
 			proto, empty, host, *path = url.split("/")
 			host_parts = host.split(".")
 			host = ""
