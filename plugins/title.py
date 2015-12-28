@@ -131,7 +131,6 @@ class Title(PluginBase):
 		try:
 			f = urllib.request.urlopen(GETURL)
 			data = f.read().decode('iso-8859-1')
-			print("data:", data)
 			shortUrl = re.findall("\"url\": \"(.*?)\"",data)[0].replace("\/","/")
 			return shortUrl
 		except:
@@ -141,7 +140,7 @@ class Title(PluginBase):
 	def getTitle(self, url):
 		try:
 			if "://" not in url: url = "http://" + url
-			
+
 			shortUrl = self.shortenURL(url)
 			shortUrl = shortUrl[shortUrl.index(":")+3:]
 
