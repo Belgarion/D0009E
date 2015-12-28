@@ -29,7 +29,7 @@ class Calc(PluginBase):
 
 	def calc(self, expr):
 		result = eval(expr, {"__builtins__":None},
-			{"sin":math.sin, "cos":math.cos, "abs":abs, "e":math.e,
+				{"sin":math.sin, "cos":math.cos, "abs":abs, "e":math.e, "sqrt":math.sqrt,
 				"pi":math.pi, "log":math.log, "tan":math.tan, "factorial":math.factorial})
 		return result
 
