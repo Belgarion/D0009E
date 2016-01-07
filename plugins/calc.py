@@ -28,9 +28,13 @@ class Calc(PluginBase):
 		bot.sendMessage("PRIVMSG", channel, str(result))
 
 	def calc(self, expr):
-		result = eval(expr, {"__builtins__":None},
-				{"sin":math.sin, "cos":math.cos, "abs":abs, "e":math.e, "sqrt":math.sqrt,
-				"pi":math.pi, "log":math.log, "tan":math.tan})
+		try:
+			result = eval(expr, {"__builtins__":None},
+					{"sin":math.sin, "cos":math.cos, "abs":abs, "e":math.e, "sqrt":math.sqrt,
+					"pi":math.pi, "log":math.log, "tan":math.tan})
+		except:
+			traceback.print_exc()
+			result = "Error"
 		return result
 
 mainclass = Calc
