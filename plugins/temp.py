@@ -135,12 +135,20 @@ class Temp(PluginBase):
 
 	def ludd(self, bot, channel, params):
 		if params[0] == 'dh1':
-			conn = http.client.HTTPConnection("orac.ludd.ltu.se")
-			conn.request("GET", "/last-dh1")
+			conn = http.client.HTTPSConnection("netmon.se")
+			conn.request("GET", "/api/csv/16/ludd/temperature?name=dh1&interval=600")
 			resp = conn.getresponse()
 			data = resp.read().decode('utf-8')
 			conn.close()
-			temp = data
+			temp = None
+			header = None
+			for line in data.split("\r\n"):
+				if not header:
+					header = line.split(",")
+					continue
+				t = line.split(",")
+				if len(t)>1 and not t[1] == "NaN":
+					temp = t[1]
 
 			if temp:
 				bot.sendMessage("PRIVMSG", channel,
@@ -150,12 +158,20 @@ class Temp(PluginBase):
 						"Unable to get temperature in %s", params[0])
 			return True
 		elif params[0] == 'dh2':
-			conn = http.client.HTTPConnection("orac.ludd.ltu.se")
-			conn.request("GET", "/last-dh2")
+			conn = http.client.HTTPSConnection("netmon.se")
+			conn.request("GET", "/api/csv/16/ludd/temperature?name=dh2&interval=600")
 			resp = conn.getresponse()
 			data = resp.read().decode('utf-8')
 			conn.close()
-			temp = data
+			temp = None
+			header = None
+			for line in data.split("\r\n"):
+				if not header:
+					header = line.split(",")
+					continue
+				t = line.split(",")
+				if len(t)>1 and not t[1] == "NaN":
+					temp = t[1]
 
 			if temp:
 				bot.sendMessage("PRIVMSG", channel,
@@ -165,12 +181,20 @@ class Temp(PluginBase):
 						"Unable to get temperature in %s", params[0])
 			return True
 		elif params[0] == 'dh2-lc':
-			conn = http.client.HTTPConnection("orac.ludd.ltu.se")
-			conn.request("GET", "/last-dh2-lc")
+			conn = http.client.HTTPSConnection("netmon.se")
+			conn.request("GET", "/api/csv/16/ludd/temperature?name=dh2lc&interval=600")
 			resp = conn.getresponse()
 			data = resp.read().decode('utf-8')
 			conn.close()
-			temp = data
+			temp = None
+			header = None
+			for line in data.split("\r\n"):
+				if not header:
+					header = line.split(",")
+					continue
+				t = line.split(",")
+				if len(t)>1 and not t[1] == "NaN":
+					temp = t[1]
 
 			if temp:
 				bot.sendMessage("PRIVMSG", channel,
