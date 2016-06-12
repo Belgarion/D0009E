@@ -203,6 +203,29 @@ class Temp(PluginBase):
 				bot.sendMessage("PRIVMSG", channel,
 						"Unable to get temperature in %s", params[0])
 			return True
+		elif params[0] == 't1':
+			conn = http.client.HTTPSConnection("netmon.se")
+			conn.request("GET", "/api/csv/16/ludd/temperature?name=t1&interval=600")
+			resp = conn.getresponse()
+			data = resp.read().decode('utf-8')
+			conn.close()
+			temp = None
+			header = None
+			for line in data.split("\r\n"):
+				if not header:
+					header = line.split(",")
+					continue
+				t = line.split(",")
+				if len(t)>1 and not t[1] == "NaN":
+					temp = t[1]
+
+			if temp:
+				bot.sendMessage("PRIVMSG", channel,
+						"Temperature in %s: %s" % (params[0], temp))
+			else:
+				bot.sendMessage("PRIVMSG", channel,
+						"Unable to get temperature in %s", params[0])
+			return True
 		return False
 
 	def errortemp(self, bot, channel, params):
