@@ -31,28 +31,11 @@ class Temp(PluginBase):
 					break
 			return
 
-		# Use electricman instead of marge:
-		conn = http.client.HTTPConnection("temperatur.electricman.se")
-		conn.request("GET", "/temp_lulea.php")
+		conn = http.client.HTTPSConnection("temp.campus.ltu.se")
+		conn.request("GET", "/temp_outside.php")
 		resp = conn.getresponse()
 		data = resp.read().decode('utf-8')
-		bot.sendMessage("PRIVMSG", channel, "Temperature: %s" % (data))
-
-		"""
-		conn = http.client.HTTPConnection("marge.campus.ltu.se")
-		conn.request("GET", "/temp/")
-		resp = conn.getresponse()
-		data = resp.read().decode('iso-8859-1')
-
-		lines = data.split("\n")
-		for line in lines:
-			if "Current temperature" in line:
-				temperature = ("%s" % (" ".join(line.split()[5:8])))
-				break
-
-		bot.sendMessage("PRIVMSG", channel, "Temperature: %s" %
-				(temperature))
-		"""
+		bot.sendMessage("PRIVMSG", channel, "Temperature: %s°C" % (data))
 
 	def specialtemp(self, bot, channel, params):
 		temp = None
