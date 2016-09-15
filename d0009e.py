@@ -165,6 +165,19 @@ class Bot:
 					print("sa:", sa)
 					try:
 						self.sock = socket.socket(af, socktype, proto)
+						keep = self.sock.getsockopt(socket.SOL_SOCKET, socket.SO_KEEPALIVE)
+						if keep == 0:
+							print('Socket keepalive off, enabling.')
+							keep = self.sock.setsockopt(socket.SOL_SOCKET, socket.SO_KEEPALIVE, 1)
+							print('setsockopt=%s' % (keep))
+							# overrides value (in seconds) shown by sysctl net.ipv4.tcp_keepalive_time
+							self.sock.setsockopt(socket.SOL_TCP, socket.TCP_KEEPIDLE, 1800)
+							# overrides value shown by sysctl net.ipv4.tcp_keepalive_probes
+							self.sock.setsockopt(socket.SOL_TCP, socket.TCP_KEEPCNT, 4)
+							# overrides value shown by sysctl net.ipv4.tcp_keepalive_intvl
+							self.sock.setsockopt(socket.SOL_TCP, socket.TCP_KEEPINTVL, 15)
+						else:
+							print('Socket keepalive already on')
 					except socket.error as msg:
 						print("Creating socket error", msg)
 						self.sock = None
@@ -181,6 +194,8 @@ class Bot:
 					print("Could not open socket")
 					time.sleep(10)
 					continue
+
+
 
 				self.recvThread.sock = self.sock
 				self.recvThread.connecting = False
