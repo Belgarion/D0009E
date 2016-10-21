@@ -107,48 +107,21 @@ class Title(PluginBase):
 		self.handleTitle(bot, channel, [url])
 
 	def shortenURL(self, url):
-
 		#This is stupid, but special case because reddit people are terrible
-		if re.match("(http\:\/\/|https\:\/\/)?(www\.)?reddit\.com", url):
+		if re.match("(https?://)?(www\.)?reddit\.com", url):
 			try:
 				return "http://redd.it/"+re.search("comments/(.+?)\/", url).groups(1)[0]
 			except:
 				pass
 
-		if re.match("(http\:\/\/|https\:\/\/)?(www\.)?(redd\.it|öä.se)", url) and len(url) < 23:
+		if re.match("(https?://)?(redd\.it|öä\.se)", url) and len(url) < 23:
 			return url
 		#End special case
 
 		APIURL = "https://api-ssl.bitly.com"
 
 		#Encode url
-
-		url = url.replace("!","%21")
-		url = url.replace("#","%23")
-		url = url.replace("$","%24")
-		url = url.replace("&","%26")
-		url = url.replace("'","%27")
-		url = url.replace("(","%28")
-		url = url.replace(")","%29")
-		url = url.replace("*","%2A")
-		url = url.replace("+","%2B")
-		url = url.replace(",","%2C")
-		url = url.replace("/","%2F")
-		url = url.replace(":","%3A")
-		url = url.replace(";","%3B")
-		url = url.replace("=","%3D")
-		url = url.replace("?","%3F")
-		url = url.replace("@","%40")
-		url = url.replace("[","%5B")
-		url = url.replace("]","%5D")
-		url = url.replace("Å","%C5")
-		url = url.replace("Ä","%C4")
-		url = url.replace("Ö","%D6")
-		url = url.replace("å","%E5")
-		url = url.replace("ä","%E4")
-		url = url.replace("ö","%F6")
-
-		#url = urllib.parse.urlencode(url)
+		url = urllib.parse.quote(url, safe = '') #defaults to '/', and we want to encode those too
 
 		#Create String
 		GETURL = APIURL + "/v3/shorten?"
@@ -166,8 +139,11 @@ class Title(PluginBase):
 
 	def getTitle(self, url):
 		try:
-			if url[0:7] != "http://" and url[0:8] != "https://" : url = "http://" + url
-			shortUrl = self.shortenURL(url)[7:]
+			if "://" not in url: url = "http://" + url
+
+			shortUrl = self.shortenURL(url)
+			shortUrl = shortUrl[shortUrl.index(":")+3:]
+
 			proto, empty, host, *path = url.split("/")
 			host_parts = host.split(".")
 			host = ""
@@ -190,6 +166,9 @@ class Title(PluginBase):
 			print("URL:",url)
 			while location != None:
 				print("Location: " + location)
+				if not (location.startswith("http://") \
+						or location.startswith("https://")):
+						location = proto + "//" + host + "/" + location
 				req=urllib.request.Request(simpleencode(location),None, headers)
 				f.close()
 				f = opener.open(req)

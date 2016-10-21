@@ -3,6 +3,7 @@ from .pluginbase import PluginBase
 
 import math
 import traceback
+import re
 
 class Calc(PluginBase):
 	def __init__(self, bot):
@@ -15,15 +16,25 @@ class Calc(PluginBase):
 
 		result = None
 		try:
-			result = self.calc("".join(params))
+			expr = "".join(params)
+			if re.search(r'[^0-9]\.', expr) or re.search(r'\.[^0-9]', expr):
+				result = "NEJ!"
+			else:
+				expr = expr.replace("__", "_DOUBLEUNDERSCORE_")
+				result = self.calc(expr)
 		except Exception as e:
+			traceback.print_exc()
 			result = "Error"
 		bot.sendMessage("PRIVMSG", channel, str(result))
 
 	def calc(self, expr):
-		result = eval(expr, {"__builtins__":None},
-			{"sin":math.sin, "cos":math.cos, "abs":abs, "e":math.e,
-				"pi":math.pi, "log":math.log, "tan":math.tan, "factorial":math.factorial})
+		try:
+			result = eval(expr, {"__builtins__":None},
+					{"sin":math.sin, "cos":math.cos, "abs":abs, "e":math.e, "sqrt":math.sqrt,
+					"pi":math.pi, "log":math.log, "tan":math.tan})
+		except:
+			traceback.print_exc()
+			result = "Error"
 		return result
 
 mainclass = Calc

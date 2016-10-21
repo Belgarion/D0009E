@@ -25,6 +25,7 @@ class Talking(PluginBase):
 		bot.registerQueryCommand("!addsentence", self.addSentence)
 		bot.registerQueryCommand("!delsentence", self.delSentence)
 		bot.registerQueryCommand("!repsentence", self.repSentence)
+		bot.registerContentCommand("D0009E: ", self.talk_markov)
 		self.substantiv = []
 		self.pronomen = [["jag"], ["du"], ["vi"], ["ni"], ["man kanske"]]
 		self.adjektiv = []
@@ -183,11 +184,13 @@ class Talking(PluginBase):
 				"%%SUBSTANTIV7%%":(self.substantiv, 7),
 				"%%SUBSTANTIV8%%":(self.substantiv, 8),
 				"%%PRONOMEN%%":(self.pronomen, 0),
+				"%%PREPOSITION%%":(self.prepositioner, 0),
 				"%%VERB%%":(self.verb, 0),
 				"%%VERB1%%":(self.verb, 1),
 				"%%VERB2%%":(self.verb, 2),
 				"%%VERB3%%":(self.verb, 3),
 				"%%VERB4%%":(self.verb, 4),
+				"%%ADVERB%%":(self.adverb, 0),
 				"%%DEFINITION1%%": (self.definitions, 0),
 				"%%LAND%%": (self.land, -1),
 				"%%YRKE%%": (self.yrke, -1),
