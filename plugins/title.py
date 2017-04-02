@@ -12,6 +12,7 @@ import html.parser
 import string
 import encodings
 import encodings.idna
+import json
 
 def simpleencode(str):
 	out = ""
@@ -131,8 +132,8 @@ class Title(PluginBase):
 		try:
 			f = urllib.request.urlopen(GETURL)
 			data = f.read().decode('iso-8859-1')
-			shortUrl = re.findall("\"url\": \"(.*?)\"",data)[0].replace("\/","/")
-			return shortUrl
+			d = json.loads(data)
+			return d['data']['url']
 		except:
 			traceback.print_exc()
 			return ""

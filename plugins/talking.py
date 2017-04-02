@@ -299,12 +299,24 @@ class Talking(PluginBase):
 			traceback.print_exc()
 
 	def on_tick(self, bot):
+		self.sendQuietMessages(bot)
 		return
 		hour = time.localtime().tm_hour
 		if time.time() - bot.nextTalk > 0 and hour > 6 and hour <= 23:
 			bot.nextTalk = time.time()  + random.randint(1800, 7200)
 			chan = random.choice(list(bot.channels.keys()))
 			bot.sendMessage("PRIVMSG", chan, self.getSentence(bot, chan))
+
+	def sendQuietMessages(self, bot):
+		for channel, chanstats in bot.channels.items():
+			if time.time() - chanstats.lastMessage > 24*60*60: # After 24 hours
+				chanstats.lastMessage = time.time()
+				try:
+					#bot.sendMessage("PRIVMSG",
+					#		channel, random.choice(self.quiet_messages))
+					self.talk_markov(bot, channel, [])
+				except:
+					traceback.print_exc()
 
 
 mainclass = Talking

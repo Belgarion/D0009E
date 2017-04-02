@@ -3,6 +3,7 @@ from .pluginbase import PluginBase
 
 import random
 import time
+import .talking
 
 class QuietMessages(PluginBase):
 	def __init__(self, bot):

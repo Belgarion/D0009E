@@ -15,6 +15,7 @@ class Forecast(PluginBase):
 		self.channels = self.getConfig("channels", "").split()
 
 	def on_tick(self, bot):
+		return # DIsable automatic forecast for now..
 		hour = time.localtime().tm_hour
 		if time.time() - self.lastForecast > 7200 and \
 				(hour == 5 or hour == 11 or hour == 17 or hour == 23):
